@@ -9,6 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.0",
+    "jose": "^6.0.8",
     "my-next-app": "file:",
     "next": "15.1.7",
     "react": "^19.0.0",
