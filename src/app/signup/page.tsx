@@ -24,7 +24,7 @@ export default function signupPage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email , password }),
     });
 
     if (!response.ok) {
@@ -32,20 +32,11 @@ export default function signupPage() {
       return;
     }
 
-    const data = await response.json();
-
   
-    const encryptedPassword = data.encryptedPassword;
 
    
     try {
-      const userData = {
-        id: Math.floor(Math.random() * 9000), 
-        email: email,
-        password: encryptedPassword, 
-      };
-
-      createUser(userData)
+  
       setStatusMessage("User created successfully!");
     } catch (error) {
       console.error("Error creating user:", error);
