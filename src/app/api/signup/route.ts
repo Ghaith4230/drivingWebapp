@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { encryptPassword } from '@/app/lib/encryptio'; // Assuming encryptPassword is async
+import { encryptPassword } from '@/app/lib/encryptio'; 
 import { createUser } from '@/db/queries/insert';
 
 export async function POST(req: Request) {
@@ -11,14 +11,14 @@ export async function POST(req: Request) {
 
     const userData = {
       email: email, 
-      password: encryptedPassword, // Now we use the encrypted password
+      password: encryptedPassword,
       id: Math.floor(Math.random() * 9000),
     };
 
-    // Await createUser to make sure the user is created
+  
     await createUser(userData);
 
-    // Return the encrypted password (although you may not want to return this for security reasons)
+   
     return NextResponse.json({ encryptedPassword: encryptedPassword });
   } catch (error) {
     console.error("Error during encryption:", error); // Log for debugging
