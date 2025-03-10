@@ -9,9 +9,11 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
     
-
+    console.log(email,password)
     // Fetch the user from the database by email
     const userArray = await getUserByEmail(email);
+
+    console.log(userArray[0].email)
     
 
     if (userArray.length === 0) {

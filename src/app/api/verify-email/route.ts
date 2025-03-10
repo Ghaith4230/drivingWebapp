@@ -22,7 +22,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
 
 
     // Mark email as verified
-    await updateUser(3419, { isVerified: 1, verificationToken: null });
+    await updateUser(377, { isVerified: 1, verificationToken: null });
 
   
   } catch (error) {

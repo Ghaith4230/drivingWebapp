@@ -6,6 +6,8 @@ export async function getUserByEmail(email: SelectUser['email']): Promise<
     id: number;
     email: string;
     password: string;
+    verificationToken: string | null;
+    isVerified: number;
   }>
 > {
   return await db.select().from(usersTable).where(eq(usersTable.email, email));
