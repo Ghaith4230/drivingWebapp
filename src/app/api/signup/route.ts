@@ -49,8 +49,10 @@ async function sendM(email: string, token: string): Promise<void> {
     },
   });
 
-  const verifyLink = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${token}`;
+  const verifyLink = `http://localhost:3000/api/verify-email?token=${token}&email=${email}`;
+  ;
 
+  console.log(verifyLink)
   await transporter.sendMail({
     to: email,
     subject: "Verify Your Email",

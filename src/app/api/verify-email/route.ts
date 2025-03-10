@@ -1,26 +1,32 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserById } from '../../../db/queries/select';
+import { getUserByEmail } from '../../../db/queries/select';
+import { updateUser } from '../../../db/queries/insert';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { userId, token } = req.query;
+export async function GET(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    // Extract the query parameters from the URL
+    const url = new URL(req.url!, `http://${req.headers.host}`);
+    const token = url.searchParams.get('token');
+    const email = url.searchParams.get('email');
 
-  if (!userId || !token) {
-    return res.status(400).json({ message: "Missing user ID or token" });
+    console.log(email)
+    console.log(token)
+
+    // Check for missing email or token
+    if (!email || !token) {
+      return res.status(400).json({ message: "Missing email or token" });
+    }
+
+    // Find user by email
+    const user = await getUserByEmail(email);
+
+
+    // Mark email as verified
+    await updateUser(3419, { isVerified: 1, verificationToken: null });
+
+  
+  } catch (error) {
+    console.error("Error during email verification:", error); // Log the detailed error
+    
   }
-
-    const userIdnumb = Number(userId);
-  // Find user by ID
-  const user = await getUserById(userIdnumb);
-
-  if (!user || user.verficationToken !== token) {
-    return res.status(400).json({ message: "Invalid or expired token" });
-  }
-
-  // Mark email as verified
-  await db.user.update({
-    where: { id: userId },
-    data: { emailVerified: true, verificationToken: null },
-  });
-
-  res.status(200).json({ message: "Email verified successfully" });
 }
