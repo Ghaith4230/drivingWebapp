@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 import { getUserByEmail } from '../../../db/queries/select';
 import { updateUser } from '../../../db/queries/insert';
 
@@ -14,16 +15,16 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
 
     // Check for missing email or token
     if (!email || !token) {
-      return res.status(400).json({ message: "Missing email or token" });
+      return NextResponse.json({ message: "Invalid arguments" }, { status: 400 });
     }
 
     // Find user by email
     const user = await getUserByEmail(email);
 
-
     // Mark email as verified
-    await updateUser(377, { isVerified: 1, verificationToken: null });
+    await updateUser(user[0].id, { isVerified: 1, verificationToken: null });
 
+    return NextResponse.json({ message: "Email verified" }, { status: 200 });
   
   } catch (error) {
     console.error("Error during email verification:", error); // Log the detailed error

@@ -11,14 +11,13 @@ export default function signupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+   const user = await getUserByEmail(email)
    
-    if ((await getUserByEmail(email)).length >= 1) {
+    if (user.length >= 1) {
       setStatusMessage("Error: Email already exists");
       return;
     }
-
-    // Encrypt the password
+    
     const response = await fetch("/api/signup", {
       method: "POST",
       headers: {

@@ -42,23 +42,3 @@ export async function login(array :  Array<{
 }
 
 
- async function send(email: string, token: string): Promise<void> {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail', // Or your email provider
-    auth: {
-      user: "Geoffjeff08@gmail.com", 
-      pass: "Hetisklaar42Bassem30",
-    },
-  });
-
-  const verifyLink = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${token}`;
-
-  await transporter.sendMail({
-    to: email,
-    subject: "Verify Your Email",
-    html: `<p>Click the link below to verify your email:</p>
-           <a href="${verifyLink}">Verify Email</a>`,
-  });
-}
-
-export { sendEmail};

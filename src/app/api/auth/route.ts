@@ -28,6 +28,8 @@ export async function POST(req: Request) {
 
     if (!passwordMatch) {
       return NextResponse.json({ message: "Error: email or password incorrect" }, { status: 400 });
+    } else if (userData.isVerified == 0) {
+      return NextResponse.json({ message: "Error: Email not verified" }, { status: 400 })
     }
 
     // Create session for the user

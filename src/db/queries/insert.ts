@@ -1,5 +1,5 @@
 import { db } from '../index';
-import { InsertUser, usersTable } from '../schema';
+import { InsertUser, usersTable ,postsTable,InsertPost} from '../schema';
 import { sql } from 'drizzle-orm';
 
 export async function createUser(data: InsertUser) {
@@ -11,4 +11,7 @@ export async function updateUser(id: number, data: Partial<InsertUser>) {
     .update(usersTable)
     .set(data)
     .where(sql`${usersTable.id} = ${id}`); // Use SQL template for equality
+}
+export async function bookTime(data: InsertPost) {
+  await db.insert(postsTable).values(data);
 }
