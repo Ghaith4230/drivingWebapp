@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-
+import nodemailer from 'nodemailer';
 // Generate the secret key directly as a raw Uint8Array (64 bytes)
 const secretKey = new TextEncoder().encode('my-static-secret-key'); // Raw bytes used directly
 
@@ -24,6 +24,7 @@ export async function deleteSession() {
   const cookieStore = await cookies();
   cookieStore.delete("session");
   cookieStore.set("session", "", { expires: new Date(0) });
+  console.log("EEEEEEEEEEEEEEE")
 }
 
 type SessionPayload = {
@@ -65,3 +66,7 @@ export async function decrypt(session: string | undefined = "") {
     return undefined;
   }
 }
+
+
+
+

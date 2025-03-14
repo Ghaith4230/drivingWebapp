@@ -11,10 +11,9 @@ export const usersTable = sqliteTable('users', {
 });
 
 export const postsTable = sqliteTable('timeslots', {
+  date: text('date').$onUpdate(() => new Date().toISOString().split('T')[0]),
 
-  date: text('date').primaryKey().$onUpdate(() => new Date().toISOString().split('T')[0]),
-  
-  timestamp: integer('timeslot', { mode: 'timestamp' }).primaryKey().$onUpdate(() => new Date()),
+  time: text('time').notNull(), 
 
   userId: integer('user_id')
     .notNull()
