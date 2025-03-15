@@ -32,8 +32,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Log the user object for debugging
-    console.log("User object:", user);
 
    
 
@@ -41,10 +39,10 @@ export async function POST(req: Request) {
     const userData = {
       date: date,
       time: time,
-      userId: 8473, // Ensure this matches the field in your database
+      userId: session.userId as number, // Ensure this matches the field in your database
       content: "Booked",
     };
-
+    
     // Insert the booking into the database
     await bookTime(userData);
 

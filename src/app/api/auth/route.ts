@@ -9,33 +9,31 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
     
-    console.log(email,password)
-    // Fetch the user from the database by email
-    const userArray = await getUserByEmail(email);
 
-    console.log(userArray[0].email)
+    // Fetch the user from the database by email
+    const user = await getUserByEmail(email);
     
 
-    if (userArray.length === 0) {
+    console.log(user);
+
+    if (!user) {
       return NextResponse.json({ message: "Error: email or password incorrect" }, { status: 400 });
     }
 
-    const userData = userArray[0]; // Assuming the first match is the user
+    
 
     // Compare the provided password with the stored hashed password
-    const passwordMatch = await comparePasswords(password, userData.password);
+    const passwordMatch = await comparePasswords(password, user[0].password);
     
 
     if (!passwordMatch) {
       return NextResponse.json({ message: "Error: email or password incorrect" }, { status: 400 });
-    } else if (userData.isVerified == 0) {
-      return NextResponse.json({ message: "Error: Email not verified" }, { status: 400 })
     }
 
     // Create session for the user
 
 
-    await createSession(userData.email);
+    await createSession(user[0].email,user[0].id);
   
 
     // Send a success response

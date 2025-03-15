@@ -4,11 +4,11 @@ import nodemailer from 'nodemailer';
 // Generate the secret key directly as a raw Uint8Array (64 bytes)
 const secretKey = new TextEncoder().encode('my-static-secret-key'); // Raw bytes used directly
 
-export async function createSession(userId: string) {
+export async function createSession(userEmail: string,userId: Number) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const session = await encrypt({ userId, expiresAt });
 
-  console.log("Created Session:", session);
+  console.log("the id is", userId);
+  const session = await encrypt({userEmail, userId, expiresAt });
 
   // Await the cookies call before using set
   const cookieStore = await cookies();
@@ -24,11 +24,11 @@ export async function deleteSession() {
   const cookieStore = await cookies();
   cookieStore.delete("session");
   cookieStore.set("session", "", { expires: new Date(0) });
-  console.log("EEEEEEEEEEEEEEE")
 }
 
 type SessionPayload = {
-  userId: string;
+  userEmail: string;
+  userId: Number;
   expiresAt: Date;
 };
 

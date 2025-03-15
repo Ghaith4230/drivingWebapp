@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text} from 'drizzle-orm/sqlite-core';
+import { integer, primaryKey, sqliteTable, text} from 'drizzle-orm/sqlite-core';
 
 
 export const usersTable = sqliteTable('users', {
@@ -11,9 +11,11 @@ export const usersTable = sqliteTable('users', {
 });
 
 export const postsTable = sqliteTable('timeslots', {
-  date: text('date').$onUpdate(() => new Date().toISOString().split('T')[0]),
+  date: text('date')
+    .$onUpdate(() => new Date().toISOString().split('T')[0])
+    .notNull(),
 
-  time: text('time').notNull(), 
+  time: text('time').notNull(),
 
   userId: integer('user_id')
     .notNull()
@@ -21,7 +23,9 @@ export const postsTable = sqliteTable('timeslots', {
 
   content: text('content').notNull(),
   
-});
+}, (table) => ({
+  pk: primaryKey(table.date, table.time) // Composite primary key
+}));
 
 export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
