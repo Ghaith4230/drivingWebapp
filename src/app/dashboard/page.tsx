@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, startOfDay, addMinutes } from "date-fns";
 import { date } from "drizzle-orm/mysql-core";
+import { getTimeSlotsByDate } from "@/db/queries/select";
 
 
 
@@ -46,6 +47,9 @@ export default function Dashboard() {
   };
 
   const fetchTimeSlots = async (start: Date, end: Date) => {
+
+    const timeSlots = getTimeSlotsByDate("2025-03-10");
+    console.log(timeSlots);
     return [
       { date: '2025-03-10', slots: [{ time: "10:00 AM", content: "Driving Lesson" }] },
       { date: '2025-03-12', slots: [{ time: "12:00 PM", content: "Test Drive" }] },
