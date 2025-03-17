@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUserByEmail } from '@/db/queries/select';
+import { getUserByEmail } from '@/db/select';
 import { decrypt } from '@/app/lib/session';
 import { bookTime } from '@/db/queries/insert';
 import { cookies } from 'next/headers';
@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 export async function POST(req: Request) {
   try {
     // Parse incoming request body
-    const { date, time }: { date: string; time: string } = await req.json();
+    const { date, time,details }: { date: string; time: string,details : string } = await req.json();
 
     // Retrieve and decrypt the session cookie
     const cookie = (await cookies()).get('session')?.value;
@@ -21,16 +21,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Fetch the user by email (or userId, depending on your implementation)
-    const user = await getUserByEmail(session.userId as string);
+    
 
-    // Check if the user exists
-    if (!user) {
-      return NextResponse.json(
-        { message: "User not found." },
-        { status: 404 }
-      );
-    }
+   
 
 
    
@@ -40,7 +33,7 @@ export async function POST(req: Request) {
       date: date,
       time: time,
       userId: session.userId as number, // Ensure this matches the field in your database
-      content: "Booked",
+      content: details,
     };
     
     // Insert the booking into the database

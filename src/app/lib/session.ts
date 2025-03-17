@@ -41,12 +41,11 @@ export async function encrypt(payload: SessionPayload) {
 
   const signedJWT = await jwt.sign(secretKey); 
 
-  console.log("Signed JWT:", signedJWT); 
   return signedJWT;
 }
 
 export async function decrypt(session: string | undefined = "") {
-  console.log("Decrypting session:", session); 
+
 
   if (!session) {
     console.log("No session found");
@@ -59,7 +58,6 @@ export async function decrypt(session: string | undefined = "") {
       algorithms: ["HS256"],
     });
 
-    console.log("Decrypted payload:", payload); // Log the decrypted payload for debugging
     return payload;
   } catch (error) {
     console.log("Failed to verify session:", error); // Log the error to get more details

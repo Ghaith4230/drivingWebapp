@@ -1,7 +1,7 @@
 "use client"; // This ensures the component is treated as a client-side component.
 
 import { useState } from "react";
-import { getUserByEmail } from "../../db/queries/select";
+import { getUserByEmail } from "../../db/select";
 import {createUser} from "../../db/queries/insert"
 export default function signupPage() {
   const [email, setEmail] = useState("");
@@ -11,13 +11,13 @@ export default function signupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-   const user = await getUserByEmail(email)
+
    
-    if (user.length >= 1) {
+    if ((await getUserByEmail(email)) !== null) {
       setStatusMessage("Error: Email already exists");
       return;
     }
-    
+
     const response = await fetch("/api/signup", {
       method: "POST",
       headers: {

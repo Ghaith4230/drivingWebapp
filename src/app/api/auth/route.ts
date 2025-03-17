@@ -1,7 +1,7 @@
 // app/api/auth/route.ts
 
 import { NextResponse } from 'next/server';
-import { getUserByEmail } from "../../../db/queries/select"; // Adjust path if necessary
+import { getUserByEmail } from "../../../db/select"; // Adjust path if necessary
 import { comparePasswords } from "../../lib/encryptio";
 import { createSession } from "../../lib/session"; // Adjust path if necessary
 import { deleteSession } from '../../lib/session';
@@ -14,8 +14,6 @@ export async function POST(req: Request) {
     const user = await getUserByEmail(email);
     
 
-    console.log(user);
-
     if (!user) {
       return NextResponse.json({ message: "Error: email or password incorrect" }, { status: 400 });
     }
@@ -23,7 +21,7 @@ export async function POST(req: Request) {
     
 
     // Compare the provided password with the stored hashed password
-    const passwordMatch = await comparePasswords(password, user[0].password);
+    const passwordMatch = await comparePasswords(password, user.password);
     
 
     if (!passwordMatch) {
@@ -33,7 +31,7 @@ export async function POST(req: Request) {
     // Create session for the user
 
 
-    await createSession(user[0].email,user[0].id);
+    await createSession(user.email,user.id);
   
 
     // Send a success response

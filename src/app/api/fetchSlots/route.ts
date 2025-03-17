@@ -1,22 +1,22 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getTimeSlotsByDate } from "@/db/queries/select";
-  
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
+import { NextRequest, NextResponse } from "next/server";
+import { getTimeSlotsByDate } from "@/db/select";
 
-  const { date } = req.query;
-  if (!date || typeof date !== "string") {
-    return res.status(400).json({ error: "Invalid or missing date parameter" });
-  }
-
+export async function POST(req: NextRequest) {
   try {
-    
-    
+    const body = await req.json();
+    const { current } = await body;
 
-    return res.status(200).json("e");
+    const allSlots = [];
+    for (const date of current) {
+      const slots = await getTimeSlotsByDate(date.toString());
+      const cleanedSlots = slots.map(({ time, content }) => ({ time, content }));
+      allSlots.push({ date, slots: cleanedSlots });
+    }
+    const response = allSlots.map(({ date, slots }) => ({ date, slots }));
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error fetching slots:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+

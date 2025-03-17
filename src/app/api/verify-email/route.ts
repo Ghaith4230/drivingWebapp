@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
-import { getUserByEmail } from '../../../db/queries/select';
+import { getUserByEmail } from '../../../db/select';
 import { updateUser } from '../../../db/queries/insert';
 
 export async function GET(req: NextApiRequest, res: NextApiResponse) {
@@ -10,8 +10,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     const token = url.searchParams.get('token');
     const email = url.searchParams.get('email');
 
-    console.log(email)
-    console.log(token)
+   
 
     // Check for missing email or token
     if (!email || !token) {
@@ -22,7 +21,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     const user = await getUserByEmail(email);
 
     // Mark email as verified
-    await updateUser(user[0].id, { isVerified: 1, verificationToken: null });
+    await updateUser(user!.id, { isVerified: 1, verificationToken: null });
 
     return NextResponse.json({ message: "Email verified" }, { status: 200 });
   
