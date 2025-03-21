@@ -18,7 +18,8 @@ export default function Dashboard() {
   const [currentDay, setCurrentDay] = useState<datee | null>(null);
   const [timeSlots, setTimeSlots] = useState<{ date: string; slots: TimeSlot[] }[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
-  const [slotDetails, setSlotDetails] = useState<string>(""); // New state to hold slot details
+  const [slotDetails, setSlotDetails] = useState<string>(""); 
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchTimeSlotsForWeek(currentDate);
@@ -122,10 +123,18 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={styles.container}>
-      <button onClick={handleLogout} style={styles.logoutButton}>
-        Logout
-      </button>
+    <div onClick={() => {if (menuOpen) setMenuOpen(!menuOpen)}} style={styles.container}>
+       <div style={styles.menuContainer}>
+        <div style={styles.logo} onClick={() => setMenuOpen(!menuOpen)}>⚪</div>
+        {menuOpen && (
+          <div style={styles.dropdownMenu}>
+            <button style={styles.menuItem}>Your Profile</button>
+            <button style={styles.menuItem}>Settings</button>
+            <button onClick={handleLogout} style={styles.menuItem}>Logout</button>
+          </div>
+        )}
+      </div>
+
       <h1 style={styles.heading}>Welcome to Your Dashboard</h1>
 
       <div style={styles.mainContent}>
@@ -202,6 +211,7 @@ export default function Dashboard() {
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
+
   container: {
     display: "flex",
     flexDirection: "column",
@@ -210,6 +220,56 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontFamily: "Arial",
     backgroundColor: "#f8f9fa",
     position: "relative",
+  },
+  menuContainer: {
+    position: "absolute",
+    top: "10px",
+    left: "10px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  logo: {
+    width: "50px",
+    height: "50px",
+    borderRadius: "50%",
+    backgroundColor: "#007bff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#fff",
+    fontSize: "20px",
+    cursor: "pointer",
+    border: "2px solid #0056b3",
+  },
+  dropdownMenu: {
+    position: "absolute",
+    top: "60px",
+    left: "0",
+    backgroundColor: "#fff",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+    borderRadius: "5px",
+    display: "flex",
+    flexDirection: "column",
+    width: "150px",
+    zIndex: 1000,
+  },
+  menuItem: {
+    padding: "10px",
+    textAlign: "left",
+    backgroundColor: "#fff",
+    border: "none",
+    cursor: "pointer",
+    width: "100%",
+    fontSize: "14px",
+  },
+  menuItemHover: {
+    backgroundColor: "#f0f0f0",
+  },
+  heading: {
+    fontSize: "2rem",
+    fontWeight: "bold",
+    marginTop: "60px",
   },
   logoutButton: {
     position: "absolute",
@@ -222,11 +282,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: "pointer",
     borderRadius: "5px",
   },
-  heading: {
-    fontSize: "2rem",
-    fontWeight: "bold",
-    marginBottom: "20px",
-  },
+
   mainContent: {
     display: "flex",
     width: "90%",
@@ -292,7 +348,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "2px solid #bd2130",
     padding: "10px 15px",
     cursor: "pointer",
-    borderRadius: "5px",
+    borderRadius: "5px",  
     fontWeight: "bold",
   },
   navButton: {
