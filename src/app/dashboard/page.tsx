@@ -20,6 +20,14 @@ export default function Dashboard() {
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [slotDetails, setSlotDetails] = useState<string>(""); 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [availabilityOpen, setAvailabilityOpen] = useState(false);
+  const [availabilityForm, setAvailabilityForm] = useState({
+    title: "",
+    startTime: "",
+    endTime: "",
+    location: "",
+    description: "",
+  });
 
   useEffect(() => {
     fetchTimeSlotsForWeek(currentDate);
@@ -137,6 +145,13 @@ export default function Dashboard() {
 
       <h1 style={styles.heading}>Welcome to Your Dashboard</h1>
 
+      <button
+        onClick={() => setAvailabilityOpen(true)}
+        style={{ ...styles.bookButton, marginBottom: "20px"}}
+        >
+        Manage Availability
+      </button>
+
       <div style={styles.mainContent}>
         {selectedSlot && (
           <div style={styles.sidebar}>
@@ -164,6 +179,70 @@ export default function Dashboard() {
               Close
             </button>
           </div>
+        )}
+
+        {availabilityOpen && (
+            <div style={styles.sidebar}>
+              <h2>Manage Availability</h2>
+
+              <input
+                type="text"
+                placeholder="Title"
+                value={availabilityForm.title}
+                onChange={(e) => setAvailabilityForm({... availabilityForm, title: e.target.value })}
+                style={styles.textField}
+                />
+
+              <input
+                  type="time"
+                  placeholder="Start Time"
+                  value={availabilityForm.startTime}
+                  onChange={(e) => setAvailabilityForm({ ...availabilityForm, startTime: e.target.value })}
+                  style={styles.textField}
+              />
+
+              <input
+                  type="time"
+                  placeholder="End Time"
+                  value={availabilityForm.endTime}
+                  onChange={(e) => setAvailabilityForm({ ...availabilityForm, endTime: e.target.value })}
+                  style={styles.textField}
+              />
+
+              <input
+                  type="text"
+                  placeholder="Location"
+                  value={availabilityForm.location}
+                  onChange={(e) => setAvailabilityForm({ ...availabilityForm, location: e.target.value })}
+                  style={styles.textField}
+              />
+
+              <textarea
+                  placeholder="Description (max 150 chars)"
+                  maxLength={150}
+                  value={availabilityForm.description}
+                  onChange={(e) => setAvailabilityForm({ ...availabilityForm, description: e.target.value })}
+                  style={{ ...styles.textField, height: "60px", resize: "none" }}
+              />
+
+              <button
+                  style={styles.bookButton}
+                  onClick={async () => {
+                    await fetch("/api/manageAvailability", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(availabilityForm),
+                    });
+                    setAvailabilityOpen(false);
+                    window.location.reload(); // optional
+                  }}
+              >
+                Submit
+              </button>
+              <button style={styles.closeButton} onClick={() => setAvailabilityOpen(false)}>
+                Close
+              </button>
+            </div>
         )}
 
         <div style={styles.calendarContainer}>
