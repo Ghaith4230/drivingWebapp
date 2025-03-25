@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, startOfDay, addMinutes } from "date-fns";
+import { format, startOfWeek, addDays, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, startOfDay, addMinutes} from "date-fns";
 
 type TimeSlot = {
   time: string;
