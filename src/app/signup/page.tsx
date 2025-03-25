@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { getUserByEmail } from "../../db/select";
-import {createUser} from "../../db/queries/insert"
+
 export default function signupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +23,7 @@ export default function signupPage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email , password }),
+      body: JSON.stringify({ email, password, text: "verify email" }),
     });
 
     if (!response.ok) {

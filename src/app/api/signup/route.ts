@@ -4,11 +4,12 @@ import { createUser } from '@/db/queries/insert';
 import { v4 as uuidv4 } from 'uuid';
 import { hash } from 'bcryptjs';
 import nodemailer from "nodemailer";
+import { verify } from 'crypto';
 
 export async function POST(req: Request) {
   try {
     // Parse incoming request body
-    const { email, password }: { email: string, password: string } = await req.json();
+    const { email, password ,text }: { email: string, password: string, text : string} = await req.json();
     
     // Generate a unique token and hash it for security
     const rawToken = uuidv4(); 
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
     // Encrypt the password
     const encryptedPassword = await encryptPassword(password);
 
-    // Create user data with a hashed token
+    
     const userData = {
       email: email, 
       password: encryptedPassword,
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
     await createUser(userData);
 
     
-    await sendM(email, rawToken);
+    await sendM(email, rawToken , text);
 
     // Return response with encrypted password or a success message
     return NextResponse.json({ message: "User created successfully. Check your email to verify." });
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
   }
 }
 
-async function sendM(email: string, token: string): Promise<void> {
+async function sendM(email: string, token: string, text: string): Promise<void> {
   const transporter = nodemailer.createTransport({
     service: 'gmail', // Or your email provider
     auth: {
@@ -52,10 +53,9 @@ async function sendM(email: string, token: string): Promise<void> {
   const verifyLink = `http://localhost:3000/api/verify-email?token=${token}&email=${email}`;
   ;
 
-  console.log(verifyLink)
   await transporter.sendMail({
     to: email,
-    subject: "Verify Your Email",
+    subject: text,
     html: `<p>Click the link below to verify your email:</p>
            <a href="${verifyLink}">Verify Email</a>`,
   });

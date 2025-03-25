@@ -65,6 +65,16 @@ export default function LoginPage() {
         </form>
 
         {/* Display the status message */}
+
+        <div className="mt-4 text-center text-sm">
+          <a
+            href="#"
+            className="text-blue-600 hover:underline"
+            onClick={() => alert("Forgot password functionality is not implemented yet.")}
+          >
+            Forgot password?
+          </a>
+        </div>
         <div className="mt-4 text-center text-sm">
           {statusMessage && (
             <p className={`font-medium ${statusMessage.includes('Error') ? 'text-red-500' : 'text-green-500'}`}>

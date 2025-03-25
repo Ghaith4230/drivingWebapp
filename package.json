@@ -17,7 +17,7 @@
     "geist-ui": "^0.0.102",
     "jose": "^6.0.8",
     "my-next-app": "file:",
-    "next": "15.1.7",
+    "next": "13.4.12",
     "nodemailer": "^6.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
