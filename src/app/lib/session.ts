@@ -4,6 +4,29 @@ import nodemailer from 'nodemailer';
 // Generate the secret key directly as a raw Uint8Array (64 bytes)
 const secretKey = new TextEncoder().encode('my-static-secret-key'); // Raw bytes used directly
 
+export async function getSession(req: Request) {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("session")?.value;
+
+  if (!session) return null;
+
+  const payload = await decrypt(session);
+
+  // Ensure the session isn't expired
+  const now = new Date();
+  if (!payload || new Date(payload.expiresAt) < now) {
+    return null;
+  }
+
+  return {
+    user: {
+      email: payload.userEmail,
+      id: payload.userId,
+    },
+    expires: payload.expiresAt,
+  };
+}
+
 export async function createSession(userEmail: string,userId: Number) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 

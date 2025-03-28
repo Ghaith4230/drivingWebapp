@@ -130,6 +130,72 @@ export default function Dashboard() {
     }
   }
 
+  async function handleAvailabilitySubmit() {
+    try {
+      const {
+        title,
+        startTime,
+        endTime,
+        location,
+        description,
+      } = availabilityForm;
+
+      if (!title || !startTime || !endTime) {
+        alert("Please fill in the title, start time, and end time.");
+        return;
+      }
+
+      // Generate all days of the current week (Mon–Sun)
+      const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+      const intervalMinutes = 90;
+      const allSlots = [];
+
+      for (let i = 0; i < 7; i++) {
+        const dateObj = addDays(weekStart, i);
+        const dateStr = format(dateObj, "yyyy-MM-dd");
+
+        let current = new Date(`1970-01-01T${startTime}:00`);
+        const end = new Date(`1970-01-01T${endTime}:00`);
+
+        while (current < end) {
+          const formattedTime = format(current, "hh:mm a");
+
+          allSlots.push({
+            date: dateStr,
+            time: formattedTime,
+            content: title,
+            location,
+            description,
+          });
+
+          current = addMinutes(current, intervalMinutes);
+        }
+      }
+
+      // Submit all slots to the backend
+      const response = await fetch("/api/manageAvailability", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ slots: allSlots }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Server error:", errorData); // 👈 THIS will log the real reason
+        throw new Error("Failed to update availability");
+      }
+
+
+      setAvailabilityOpen(false);
+      window.location.reload();
+    } catch (error) {
+      console.error("Availability update error:", error);
+      alert("Failed to update availability.");
+    }
+  }
+
   return (
     <div onClick={() => {if (menuOpen) setMenuOpen(!menuOpen)}} style={styles.container}>
        <div style={styles.menuContainer}>
@@ -186,18 +252,18 @@ export default function Dashboard() {
               <h2>Manage Availability</h2>
 
               <input
-                type="text"
-                placeholder="Title"
-                value={availabilityForm.title}
-                onChange={(e) => setAvailabilityForm({... availabilityForm, title: e.target.value })}
-                style={styles.textField}
-                />
+                  type="text"
+                  placeholder="Title"
+                  value={availabilityForm.title}
+                  onChange={(e) => setAvailabilityForm({...availabilityForm, title: e.target.value})}
+                  style={styles.textField}
+              />
 
               <input
                   type="time"
                   placeholder="Start Time"
                   value={availabilityForm.startTime}
-                  onChange={(e) => setAvailabilityForm({ ...availabilityForm, startTime: e.target.value })}
+                  onChange={(e) => setAvailabilityForm({...availabilityForm, startTime: e.target.value})}
                   style={styles.textField}
               />
 
@@ -205,7 +271,7 @@ export default function Dashboard() {
                   type="time"
                   placeholder="End Time"
                   value={availabilityForm.endTime}
-                  onChange={(e) => setAvailabilityForm({ ...availabilityForm, endTime: e.target.value })}
+                  onChange={(e) => setAvailabilityForm({...availabilityForm, endTime: e.target.value})}
                   style={styles.textField}
               />
 
@@ -213,7 +279,7 @@ export default function Dashboard() {
                   type="text"
                   placeholder="Location"
                   value={availabilityForm.location}
-                  onChange={(e) => setAvailabilityForm({ ...availabilityForm, location: e.target.value })}
+                  onChange={(e) => setAvailabilityForm({...availabilityForm, location: e.target.value})}
                   style={styles.textField}
               />
 
@@ -221,21 +287,13 @@ export default function Dashboard() {
                   placeholder="Description (max 150 chars)"
                   maxLength={150}
                   value={availabilityForm.description}
-                  onChange={(e) => setAvailabilityForm({ ...availabilityForm, description: e.target.value })}
-                  style={{ ...styles.textField, height: "60px", resize: "none" }}
+                  onChange={(e) => setAvailabilityForm({...availabilityForm, description: e.target.value})}
+                  style={{...styles.textField, height: "60px", resize: "none"}}
               />
 
               <button
                   style={styles.bookButton}
-                  onClick={async () => {
-                    await fetch("/api/manageAvailability", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(availabilityForm),
-                    });
-                    setAvailabilityOpen(false);
-                    window.location.reload(); // optional
-                  }}
+                  onClick={handleAvailabilitySubmit} // ✅ Use the function here
               >
                 Submit
               </button>
