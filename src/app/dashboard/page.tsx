@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const [availabilityForm, setAvailabilityForm] = useState({
     title: "",
+    date: "",
     startTime: "",
     endTime: "",
     location: "",
@@ -130,6 +131,32 @@ export default function Dashboard() {
     }
   }
 
+  const handleAvailabilitySubmit = async () => {
+    try {
+      const response = await fetch("/api/manageAvailability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          startTime: availabilityForm.startTime,
+          endTime: availabilityForm.endTime,
+          title: availabilityForm.title,
+          date: availabilityForm.date,
+          location: availabilityForm.location,
+          description: availabilityForm.description,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update availability");
+
+      setAvailabilityOpen(false);
+      window.location.reload();
+    } catch (error) {
+      console.error("Availability update error:", error);
+      alert("Something went wrong while updating your availability.");
+    }
+  };
+
+
   return (
     <div onClick={() => {if (menuOpen) setMenuOpen(!menuOpen)}} style={styles.container}>
        <div style={styles.menuContainer}>
@@ -150,6 +177,27 @@ export default function Dashboard() {
         style={{ ...styles.bookButton, marginBottom: "20px"}}
         >
         Manage Availability
+      </button>
+
+      <button
+          style={styles.closeButton}
+          onClick={async () => {
+            const confirmClear = confirm("Are you sure you want to delete all your slots?");
+            if (!confirmClear) return;
+
+            const response = await fetch("/api/clearSlots", {
+              method: "POST",
+            });
+
+            if (!response.ok) {
+              alert("Failed to clear slots");
+              return;
+            }
+
+            window.location.reload();
+          }}
+      >
+        Clear Calendar
       </button>
 
       <div style={styles.mainContent}>
@@ -194,6 +242,15 @@ export default function Dashboard() {
                 />
 
               <input
+                  type="date"
+                  value={availabilityForm.date}
+                  onChange={(e) =>
+                      setAvailabilityForm({ ...availabilityForm, date: e.target.value })
+                  }
+                  style={styles.textField}
+              />
+
+              <input
                   type="time"
                   placeholder="Start Time"
                   value={availabilityForm.startTime}
@@ -227,20 +284,9 @@ export default function Dashboard() {
 
               <button
                   style={styles.bookButton}
-                  onClick={async () => {
-                    await fetch("/api/manageAvailability", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(availabilityForm),
-                    });
-                    setAvailabilityOpen(false);
-                    window.location.reload(); // optional
-                  }}
+                  onClick={handleAvailabilitySubmit}
               >
                 Submit
-              </button>
-              <button style={styles.closeButton} onClick={() => setAvailabilityOpen(false)}>
-                Close
               </button>
             </div>
         )}

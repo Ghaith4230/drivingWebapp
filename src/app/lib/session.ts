@@ -65,6 +65,35 @@ export async function decrypt(session: string | undefined = "") {
   }
 }
 
+export async function getSession(req: Request) {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("session")?.value;
+
+  if (!session) return null;
+
+  const payload = await decrypt(session)
+
+  const now = new Date();
+
+  const typedPayload = payload as {
+    userEmail: string;
+    userId: number;
+    expiresAt: string;
+  };
+
+  if (!typedPayload || new Date(typedPayload.expiresAt) < now) {
+    return null;
+  }
+
+  return {
+    user: {
+      email: typedPayload.userEmail,
+      id: typedPayload.userId,
+    },
+    expires: typedPayload.expiresAt,
+  };
+}
+
 
 
 
