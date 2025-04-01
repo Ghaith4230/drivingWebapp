@@ -22,6 +22,10 @@ export const postsTable = sqliteTable('timeslots', {
     .references(() => usersTable.id, { onDelete: 'cascade' }),
 
   content: text('content').notNull(),
+
+  endTime: text('endTime').notNull(),
+
+  location: text('location').notNull(),
   
 }, (table) => ({
   pk: primaryKey(table.date, table.time) // Composite primary key

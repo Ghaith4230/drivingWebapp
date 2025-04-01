@@ -4,7 +4,10 @@ import { redirect } from "next/navigation";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval } from "date-fns";
 
 type TimeSlot = {
-  time: string;
+  date: string;
+  time: string;   // StartTime
+  endTime: string;
+  location: string;
   content: string;
 };
 
@@ -75,10 +78,10 @@ export default function Dashboard() {
   const getFormattedDate = (date: Date) => format(date, "yyyy-MM-dd");
 
   // =============== SLOT HANDLERS ===============
-  const handleTimeSlotClick = (day: string, time: string, content: string) => {
-    setCurrentDay({ date: day, time: time });
-    setSelectedSlot({ time, content });
-    setSlotDetails(content);
+  const handleTimeSlotClick = (slot: TimeSlot) => {
+    setCurrentDay({ date: slot.date, time: slot.time });
+    setSelectedSlot(slot);
+    setSlotDetails(slot.content);
   };
 
   const handleSlotDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,7 +181,10 @@ export default function Dashboard() {
           {selectedSlot && (
               <div style={styles.sidebar}>
                 <h2>Selected Time Slot</h2>
-                <p><strong>Time:</strong> {selectedSlot.time}</p>
+                <p><strong>Date:</strong> {selectedSlot.date}</p>
+                <p><strong>startTime:</strong> {selectedSlot.time}</p>
+                <p><strong>endTime:</strong> {selectedSlot.endTime}</p>
+                <p><strong>location:</strong> {selectedSlot.location}</p>
                 <p><strong>Details:</strong> {selectedSlot.content}</p>
                 <input
                     type="text"
@@ -276,7 +282,7 @@ export default function Dashboard() {
                                 <div
                                     key={index}
                                     style={styles.timeSlot}
-                                    onClick={() => handleTimeSlotClick(dayFormatted, slot.time, slot.content)}
+                                    onClick={() => handleTimeSlotClick(slot)}
                                 >
                                   <div style={styles.time}>{slot.time}</div>
                                   <div style={styles.content}>{slot.content}</div>

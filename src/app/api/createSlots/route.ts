@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
             time: slot.time,
             content: slot.content,
             userId,
+            endTime: slot.endTime || "",
+            location: slot.location || "",
         }));
 
         await db.insert(postsTable).values(insertData);
