@@ -25,6 +25,17 @@ export default function Dashboard() {
     fetchTimeSlotsForWeek(currentDate);
   }, [currentDate]);
 
+  const handleProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const response = await fetch("/api/deletesession", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    redirect("/profile");
+  }
+
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault();
     const response = await fetch("/api/deletesession", {
@@ -45,7 +56,7 @@ export default function Dashboard() {
   };
 
   const fetchTimeSlots = async (start: Date, end: Date) => {
-    const response = await fetch("/api/fetchSlots", {
+    const response = await fetch("/api/fetchSlots", { 
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -128,7 +139,7 @@ export default function Dashboard() {
         <div style={styles.logo} onClick={() => setMenuOpen(!menuOpen)}>⚪</div>
         {menuOpen && (
           <div style={styles.dropdownMenu}>
-            <button style={styles.menuItem}>Your Profile</button>
+            <button onClick={handleProfile} style={styles.menuItem}>Your Profile</button>
             <button style={styles.menuItem}>Settings</button>
             <button onClick={handleLogout} style={styles.menuItem}>Logout</button>
           </div>
