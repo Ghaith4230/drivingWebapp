@@ -70,7 +70,7 @@ export default function LoginPage() {
           <a
             href="#"
             className="text-blue-600 hover:underline"
-            onClick={() => alert("Forgot password functionality is not implemented yet.")}
+            onClick={() => redirect('/resPas')}
           >
             Forgot password?
           </a>
