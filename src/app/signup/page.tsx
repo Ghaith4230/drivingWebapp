@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getUserByEmail } from "../../db/select";
+import { redirect } from "next/navigation";
 
 export default function signupPage() {
   const [email, setEmail] = useState("");
@@ -18,6 +19,7 @@ export default function signupPage() {
       return;
     }
 
+   
     const response = await fetch("/api/signup", {
       method: "POST",
       headers: {
@@ -41,6 +43,7 @@ export default function signupPage() {
       console.error("Error creating user:", error);
       setStatusMessage("Error creating user. Please try again.");
     }
+    redirect('/info')
   };
 
   return (

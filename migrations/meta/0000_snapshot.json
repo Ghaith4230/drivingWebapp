@@ -1,0 +1,262 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "29af7ba6-44c9-453b-a642-3c4fbf737bc8",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "Profile": {
+      "name": "Profile",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "firstName": {
+          "name": "firstName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lastName": {
+          "name": "lastName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "phoneNumber": {
+          "name": "phoneNumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "Address": {
+          "name": "Address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "Country": {
+          "name": "Country",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ZipCode": {
+          "name": "ZipCode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "Gender": {
+          "name": "Gender",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "Profile_firstName_unique": {
+          "name": "Profile_firstName_unique",
+          "columns": [
+            "firstName"
+          ],
+          "isUnique": true
+        },
+        "Profile_lastName_unique": {
+          "name": "Profile_lastName_unique",
+          "columns": [
+            "lastName"
+          ],
+          "isUnique": true
+        },
+        "Profile_phoneNumber_unique": {
+          "name": "Profile_phoneNumber_unique",
+          "columns": [
+            "phoneNumber"
+          ],
+          "isUnique": true
+        },
+        "Profile_Address_unique": {
+          "name": "Profile_Address_unique",
+          "columns": [
+            "Address"
+          ],
+          "isUnique": true
+        },
+        "Profile_Country_unique": {
+          "name": "Profile_Country_unique",
+          "columns": [
+            "Country"
+          ],
+          "isUnique": true
+        },
+        "Profile_ZipCode_unique": {
+          "name": "Profile_ZipCode_unique",
+          "columns": [
+            "ZipCode"
+          ],
+          "isUnique": true
+        },
+        "Profile_Gender_unique": {
+          "name": "Profile_Gender_unique",
+          "columns": [
+            "Gender"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "Profile_user_id_users_id_fk": {
+          "name": "Profile_user_id_users_id_fk",
+          "tableFrom": "Profile",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "timeslots": {
+      "name": "timeslots",
+      "columns": {
+        "date": {
+          "name": "date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "time": {
+          "name": "time",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "timeslots_user_id_users_id_fk": {
+          "name": "timeslots_user_id_users_id_fk",
+          "tableFrom": "timeslots",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "timeslots_date_time_pk": {
+          "columns": [
+            "date",
+            "time"
+          ],
+          "name": "timeslots_date_time_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "verification_token": {
+          "name": "verification_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_verified": {
+          "name": "is_verified",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

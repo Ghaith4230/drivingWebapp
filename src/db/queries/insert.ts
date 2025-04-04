@@ -1,5 +1,5 @@
 import { db } from '../index';
-import { InsertUser, usersTable ,postsTable,InsertPost} from '../schema';
+import { InsertUser, usersTable ,Profile,postsTable,InsertPost,InsertProfile} from '../schema';
 import { sql } from 'drizzle-orm';
 
 export async function createUser(data: InsertUser) {
@@ -14,4 +14,8 @@ export async function updateUser(id: number, data: Partial<InsertUser>) {
 }
 export async function bookTime(data: InsertPost) {
   await db.insert(postsTable).values(data);
+}
+
+export async function createProfile(data: InsertProfile) {
+  await db.insert(Profile).values(data);
 }
