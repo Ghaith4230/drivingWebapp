@@ -1,6 +1,7 @@
 "use client"; // This ensures the component is treated as a client-side component
 
 import { createProfile } from '@/db/queries/insert';
+import { redirect } from 'next/navigation';
 import React, { useState } from 'react';
 
 interface FormData {
@@ -14,9 +15,14 @@ interface FormData {
   gender: string;
 }
 
+
+
+
+
+
 const FormPage = () => {
   const [formData, setFormData] = useState<FormData>({
-    userId: 2817,
+    userId: 0,
     firstName: '',
     lastName: '',
     phoneNumber: '',
@@ -58,12 +64,38 @@ const FormPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
+    // Make the API request
+    const response = await fetch("api/userId", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({/* any request body if needed*/}),
+    });
+  
+    // Parse the JSON response
+    const data = await response.json();
+  
+    // Check if the response contains the "message" field and if it can be converted to a number
+    if (data && data.message) {
+      const userId = parseInt(data.message, 10); // Convert message to number
+      formData.userId = userId
+    } else {
+      console.error("Response does not contain a valid message field.");
+    }
+    
+    console.log("ahhhh" + formData.userId)
     if (validate()) {
-        createProfile(formData);
+      
+      createProfile(formData);
+      redirect('/dashboard')
+      
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
