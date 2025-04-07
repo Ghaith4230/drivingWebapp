@@ -35,7 +35,7 @@ export async function login(array :  Array<{
   } else {
    
     
-    createSession(userData.email)
+    createSession(userData.email, userData.id)
 
     redirect("/dashboard");   
   }

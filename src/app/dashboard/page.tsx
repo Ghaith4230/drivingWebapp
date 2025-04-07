@@ -9,6 +9,7 @@ type TimeSlot = {
   endTime: string;
   location: string;
   content: string;
+  bookedBy: string;
 };
 
 type datee = {
@@ -31,6 +32,7 @@ export default function Dashboard() {
     endTime: "",
     location: "",
     description: "",
+    bookedBy: "",
   });
 
   useEffect(() => {
@@ -79,6 +81,7 @@ export default function Dashboard() {
 
   // =============== SLOT HANDLERS ===============
   const handleTimeSlotClick = (slot: TimeSlot) => {
+    console.log("Clicked slot: " + slot);
     setCurrentDay({ date: slot.date, time: slot.time });
     setSelectedSlot(slot);
     setSlotDetails(slot.content);
@@ -90,16 +93,29 @@ export default function Dashboard() {
 
   // =============== BOOKING HANDLER ===============
   async function handleBooking(): Promise<void> {
+    if (!selectedSlot) {
+      console.error("No timeslot selected.");
+      return;
+    }
+
+    console.log("Booking slot:", JSON.stringify(selectedSlot));
+
     const response = await fetch("/api/book", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        date: currentDay?.date,
-        time: currentDay?.time,
+        date: selectedSlot.date,
+        time: selectedSlot.time,
         details: slotDetails,
       }),
     });
-    if (response.ok) window.location.reload();
+
+    if (response.ok) {
+      // Clear selection after booking to avoid stale state
+      setSelectedSlot(null);
+      setCurrentDay(null);
+      window.location.reload();
+    }
   }
 
   // =============== AVAILABILITY HANDLER ===============
@@ -115,6 +131,7 @@ export default function Dashboard() {
           date: availabilityForm.date,
           location: availabilityForm.location,
           description: availabilityForm.description,
+          bookedBy: availabilityForm.bookedBy,
         }),
       });
 
@@ -281,7 +298,10 @@ export default function Dashboard() {
                             daySlots.map((slot, index) => (
                                 <div
                                     key={index}
-                                    style={styles.timeSlot}
+                                    style={{
+                                      ...styles.timeSlot,
+                                      backgroundColor: slot.bookedBy ? "#ffcccc" : "#ccffcc", // red if booked, green if available
+                                    }}
                                     onClick={() => handleTimeSlotClick(slot)}
                                 >
                                   <div style={styles.time}>{slot.time}</div>
