@@ -4,18 +4,17 @@ import nodemailer from 'nodemailer';
 // Generate the secret key directly as a raw Uint8Array (64 bytes)
 const secretKey = new TextEncoder().encode('my-static-secret-key'); // Raw bytes used directly
 
-export async function createSession(userEmail: string,userId: Number) {
+export async function createSession(userEmail: string, userId: number) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const session = await encrypt({ userEmail, userId, expiresAt });
 
-  console.log("the id is", userId);
-  const session = await encrypt({userEmail, userId, expiresAt });
-
-  // Await the cookies call before using set
   const cookieStore = await cookies();
   cookieStore.set("session", session, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production', // ✅ Only secure in prod
     expires: expiresAt,
+    sameSite: 'lax', // Recommended
+    path: '/',       // Ensures it's sent on all routes
   });
 }
 
@@ -28,7 +27,7 @@ export async function deleteSession() {
 
 type SessionPayload = {
   userEmail: string;
-  userId: Number;
+  userId: number;
   expiresAt: Date;
 };
 
@@ -44,23 +43,25 @@ export async function encrypt(payload: SessionPayload) {
   return signedJWT;
 }
 
-export async function decrypt(session: string | undefined = "") {
-
-
+export async function decrypt(session: string | undefined = ""): Promise<SessionPayload | undefined> {
   if (!session) {
     console.log("No session found");
     return undefined;
   }
 
   try {
-    // Use the raw secretKey for verifying the JWT
     const { payload } = await jwtVerify(session, secretKey, {
       algorithms: ["HS256"],
     });
 
-    return payload;
+    // Optional: You can validate fields more strictly here
+    return {
+      userEmail: payload.userEmail as string,
+      userId: Number(payload.userId),
+      expiresAt: new Date(payload.expiresAt as string),
+    };
   } catch (error) {
-    console.log("Failed to verify session:", error); // Log the error to get more details
+    console.log("Failed to verify session:", error);
     return undefined;
   }
 }
