@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 import { getUserByEmail } from '../../../db/select';
 import { updateUser } from '../../../db/queries/insert';
+import { redirect } from "next/navigation";
 
 export async function GET(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -23,6 +24,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     // Mark email as verified
     await updateUser(user!.id, { isVerified: 1, verificationToken: null });
 
+    redirect("/login");
     return NextResponse.json({ message: "Email verified" }, { status: 200 });
   
   } catch (error) {

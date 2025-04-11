@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');;
 
 import {createSession } from "./session"
 import { redirect } from "next/navigation";
-import nodemailer from "nodemailer";
+
 
 // A function to hash a password with bcrypt
 export async function encryptPassword(password:string) {
@@ -35,10 +35,12 @@ export async function login(array :  Array<{
   } else {
    
     
-    createSession(userData.email)
+    createSession(userData.email, userData.id);
 
     redirect("/dashboard");   
   }
 }
 
+
+ 
 

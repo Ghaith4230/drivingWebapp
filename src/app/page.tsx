@@ -1,101 +1,75 @@
+"use client"
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+    <div className="relative min-h-screen">
+      {/* Main Content (Middle Area with Background Image) */}
+      <div className="absolute top-0 left-0 w-full h-full">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          src="/car.jpeg"
+          alt="Background Image"
+          layout="fill"
+          objectFit="cover"
+          quality={100}
           priority
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
+      {/* Top Section */}
+      <div className="absolute top-0 left-0 w-full px-8 py-4 flex justify-between items-center z-10">
+        {/* Left Side - Navigation Links */}
+        <div className="flex gap-8 text-white">
+          <a href="#our-team" className="hover:underline">Our Team</a>
+          <a href="#packages" className="hover:underline">Packages</a>
+          <a href="#news" className="hover:underline">News</a>
+        </div>
+
+        {/* Right Side - Sign In Button */}
+        <div className="flex">
           <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#sign-in"
+            className="bg-transparent border-2 border-white text-white py-2 px-6 rounded-full text-sm font-semibold hover:bg-white hover:text-black transition duration-300"
+            onClick={() => redirect('/login')}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
+            Sign In
           </a>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      {/* Main Content (Middle Area with Text) */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-white z-10">
+        <h1 className="text-4xl sm:text-6xl font-bold">Welcome to Our School</h1>
+        <p className="mt-4 text-lg">We offer great education with a focus on your future</p>
+      </div>
+
+      {/* Footer Section - Contact Info */}
+      <footer className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 text-white py-6">
+  <div className="flex flex-col sm:flex-row justify-start gap-8 text-left pl-8 sm:pl-16"> {/* Use justify-start and add padding for spacing */}
+    {/* Contact Info */}
+    <div className="mb-6 sm:mb-0">
+      <h3 className="font-semibold">Contact Us</h3>
+      <p className="text-sm">Address: 123 School St, City, Country</p>
+      <p className="text-sm">Phone: +1 (123) 456-7890</p>
+      <p className="text-sm">Email: contact@school.com</p>
+    </div>
+  </div>
+
+  {/* Google Maps Embed */}
+  <div className="flex justify-start items-center sm:w-1/3 pl-8 sm:pl-16"> {/* Align the map iframe to the left */}
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.964551804118!2d144.95373631531665!3d-37.81621777975113!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d49b144618f%3A0x5045675218ce6e0!2sFederation+Square!5e0!3m2!1sen!2sus!4v1511815300423"
+      width="300"
+      height="300"
+      style={{ border: 0 }}
+      allowFullScreen={true}
+      loading="lazy"
+      className="rounded-lg"
+    />
+  </div>
+</footer>
+
     </div>
   );
 }

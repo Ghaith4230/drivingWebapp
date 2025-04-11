@@ -1,6 +1,5 @@
-import { sql } from 'drizzle-orm';
-import { integer, primaryKey, sqliteTable, text} from 'drizzle-orm/sqlite-core';
-
+  import { sql } from 'drizzle-orm';
+  import { integer, primaryKey, sqliteTable, text} from 'drizzle-orm/sqlite-core';
 
 export const usersTable = sqliteTable('users', {
   id: integer('id').primaryKey(),
@@ -22,13 +21,30 @@ export const postsTable = sqliteTable('timeslots', {
     .references(() => usersTable.id, { onDelete: 'cascade' }),
 
   content: text('content').notNull(),
-  
+
+
 }, (table) => ({
   pk: primaryKey(table.date, table.time) // Composite primary key
 }));
 
-export type InsertUser = typeof usersTable.$inferInsert;
-export type SelectUser = typeof usersTable.$inferSelect;
 
-export type InsertPost = typeof postsTable.$inferInsert;
-export type SelectPost = typeof postsTable.$inferSelect;
+  export const Profile = sqliteTable('Profile', {
+    userId: integer('user_id')
+    .notNull().primaryKey(),
+    firstName: text('firstName').notNull(),
+    lastName: text('lastName').notNull(), 
+    phoneNumber: text('phoneNumber').notNull(),
+    address: text('Address').notNull(),
+    country: text('Country').notNull(),
+    zipCode: text('ZipCode').notNull(),
+    gender: text('Gender').notNull(),
+  });
+
+  export type InsertUser = typeof usersTable.$inferInsert;
+  export type SelectUser = typeof usersTable.$inferSelect;
+
+  export type InsertPost = typeof postsTable.$inferInsert;
+  export type SelectPost = typeof postsTable.$inferSelect;
+
+  export type InsertProfile = typeof Profile.$inferInsert;
+  export type SelectProfile = typeof Profile.$inferSelect;

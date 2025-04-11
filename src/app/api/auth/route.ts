@@ -22,6 +22,10 @@ export async function POST(req: Request) {
 
     // Compare the provided password with the stored hashed password
     const passwordMatch = await comparePasswords(password, user.password);
+
+    if (!user.isVerified) {
+      return NextResponse.json({ message: "Error: Verify email" }, { status: 400 });
+    }
     
 
     if (!passwordMatch) {

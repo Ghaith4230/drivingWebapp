@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db } from './index';
-import { SelectUser, usersTable ,postsTable} from './schema';
+import { SelectUser, usersTable ,postsTable,Profile} from './schema';
 
 // Get user by email - returns a single user object
 export async function getUserByEmail(email: SelectUser['email']): Promise<{
@@ -43,6 +43,29 @@ export async function getUserById(id: SelectUser['id']): Promise<{
   return {
     ...user,
     isVerified: Boolean(user.isVerified), // Ensure isVerified is a boolean
+  };
+}
+
+export async function getProfileByUserId(userId: number): Promise<{
+  userId: number;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
+  country: string;
+  zipCode: string;
+  gender: string;
+} | null> {
+  const profiles = await db.select().from(Profile).where(eq(Profile.userId, userId)).limit(1);
+
+  // Return null if no profile found, otherwise map to the correct format
+  if (profiles.length === 0) {
+    return null;
+  }
+
+  const profile = profiles[0];
+  return {
+    ...profile,
   };
 }
 
