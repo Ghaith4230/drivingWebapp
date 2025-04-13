@@ -118,6 +118,34 @@ export default function Dashboard() {
     }
   }
 
+  async function handleUnbookSlot(): Promise<void> {
+    if (!selectedSlot) {
+      console.error("No timeslot selected for unbooking.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/unbook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: selectedSlot.date,
+          time: selectedSlot.time,
+        }),
+      });
+
+      if (response.ok) {
+        setSelectedSlot(null);
+        // Optionally update local state instead of reloading.
+        window.location.reload();
+      } else {
+        console.error("Failed to unbook the timeslot.");
+      }
+    } catch (error) {
+      console.error("Error unbooking the slot:", error);
+    }
+  }
+
   // =============== AVAILABILITY HANDLER ===============
   const handleAvailabilitySubmit = async () => {
     try {
@@ -210,9 +238,15 @@ export default function Dashboard() {
                     style={styles.textField}
                     placeholder="Add details"
                 />
-                <button style={styles.bookButton} onClick={() => handleBooking()}>
-                  Book
-                </button>
+                {selectedSlot.bookedBy ? (
+                    <button style={styles.bookButton} onClick={handleUnbookSlot}>
+                      Unbook
+                    </button>
+                ) : (
+                    <button style={styles.bookButton} onClick={handleBooking}>
+                      Book
+                    </button>
+                )}
                 <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
                   Close
                 </button>

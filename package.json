@@ -1,6 +1,7 @@
 {
   "name": "my-next-app",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -10,9 +11,10 @@
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
+    "arg": "^5.0.2",
     "bcryptjs": "^3.0.2",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "drizzle-orm": "^0.40.1",
     "geist-ui": "^0.0.94",
     "jose": "^6.0.8",
@@ -21,6 +23,7 @@
     "nodemailer": "^6.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "ts-node": "^10.9.2",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
@@ -29,7 +32,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "drizzle-kit": "^0.19.1",
+    "drizzle-kit": "^0.18.1",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
