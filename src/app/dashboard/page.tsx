@@ -26,13 +26,6 @@ export default function Dashboard() {
   }, [currentDate]);
 
   const handleProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const response = await fetch("/api/deletesession", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
     redirect("/profile");
   }
 

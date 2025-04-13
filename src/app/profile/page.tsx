@@ -4,45 +4,47 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./styles";
 import Image from "next/image";
+import { getProfileByUserId } from "@/db/select";
+import { set } from "date-fns";
+import { get } from "http";
 
 export default function Profile() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
   const router = useRouter();
 
+
+
   useEffect(() => {
-    // Fetch user profile data from the new API endpoint
-    fetch("/profiledata") // Make sure this is your actual profile fetching endpoint
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch profile data");
-        }
-        return res.json();
-      })
-      .then((data) => setProfileData(data))
-      .catch((err) => console.error("Error fetching profile data:", err));
+
+    const fetchProfile = async () => {
+      const response = await fetch("api/userId", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: "",
+      });
+
+      const result = await response.json();
+
+      console.log(result.message); 
+
+      const profile = await getProfileByUserId(result.message)
+
+     setProfileData(profile);
+    };
+
+    fetchProfile();
+    
   }, []);
+ 
 
   const handleProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await fetch("/api/deletesession", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    router.push("/profile");
   };
 
   const handleLogout = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await fetch("/api/deletesession", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    router.push("/login");
+   
   };
 
   return (
