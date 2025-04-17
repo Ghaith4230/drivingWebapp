@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, startOfDay, addMinutes } from "date-fns";
 
@@ -18,7 +18,7 @@ export default function Dashboard() {
   const [currentDay, setCurrentDay] = useState<datee | null>(null);
   const [timeSlots, setTimeSlots] = useState<{ date: string; slots: TimeSlot[] }[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
-  const [slotDetails, setSlotDetails] = useState<string>(""); 
+  const [slotDetails, setSlotDetails] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -56,8 +56,6 @@ export default function Dashboard() {
     });
 
     const array = await response.json();
-
-    console.log(array);
     return array;
   };
 
@@ -93,317 +91,137 @@ export default function Dashboard() {
   const handleTimeSlotClick = (day: string, time: string, content: string) => {
     setCurrentDay({ date: day, time: time });
     setSelectedSlot({ time, content });
-    setSlotDetails(content); // Populate the text field with the selected slot content
+    setSlotDetails(content);
   };
 
   const handleSlotDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSlotDetails(e.target.value); // Update the slotDetails state when user types
+    setSlotDetails(e.target.value);
   };
 
   async function handleBooking(): Promise<void> {
     const response = await fetch("/api/book", {
       method: "POST",
       headers: {
-      "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-      date: currentDay?.date,
-      time: currentDay?.time,
-      details: slotDetails, // Include the details in the booking request
+        date: currentDay?.date,
+        time: currentDay?.time,
+        details: slotDetails,
       }),
     });
 
     if (response.ok) {
-      window.location.reload(); // Refresh the page after successful booking
-    }
-
-    if (!response.ok) {
-      return;
+      window.location.reload();
     }
   }
 
   return (
-    <div onClick={() => {if (menuOpen) setMenuOpen(!menuOpen)}} style={styles.container}>
-       <div style={styles.menuContainer}>
-        <div style={styles.logo} onClick={() => setMenuOpen(!menuOpen)}>⚪</div>
-        {menuOpen && (
-          <div style={styles.dropdownMenu}>
-            <button style={styles.menuItem}>Your Profile</button>
-            <button style={styles.menuItem}>Settings</button>
-            <button onClick={handleLogout} style={styles.menuItem}>Logout</button>
+      <div className="flex flex-col items-center min-h-screen bg-base-200 p-6">
+        {/* Menu Container */}
+        <div className="absolute top-6 left-6 flex flex-col items-center">
+          <div
+              className="p-3 bg-primary text-white rounded-full cursor-pointer"
+              onClick={() => setMenuOpen(!menuOpen)}
+          >
+            ⚪
           </div>
-        )}
-      </div>
+          {menuOpen && (
+              <div className="mt-2 w-48 bg-white shadow-xl rounded-md">
+                <button className="block w-full text-left px-4 py-2 hover:bg-primary hover:text-white">Your Profile
+                </button>
+                <button className="block w-full text-left px-4 py-2 hover:bg-primary hover:text-white">Settings</button>
+                <button onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white">
+                  Logout
+                </button>
+              </div>
+          )}
+        </div>
 
-      <h1 style={styles.heading}>Welcome to Your Dashboard</h1>
+        {/* Heading */}
+        <h1 className="text-3xl font-semibold text-black text-center mt-20">Welcome to Your Dashboard</h1>
 
-      <div style={styles.mainContent}>
-        {selectedSlot && (
-          <div style={styles.sidebar}>
-            <h2>Selected Time Slot</h2>
-            <p>
-              <strong>Time:</strong> {selectedSlot.time}
-            </p>
-            <p>
-              <strong>Details:</strong> {selectedSlot.content}
-            </p>
-
-            {/* Text field to edit details */}
-            <input
-              type="text"
-              value={slotDetails}
-              onChange={handleSlotDetailsChange}
-              style={styles.textField}
-              placeholder="Add details"
-            />
-
-            <button style={styles.bookButton} onClick={() => handleBooking()}>
-              Book
-            </button>
-            <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
-              Close
-            </button>
-          </div>
-        )}
-
-        <div style={styles.calendarContainer}>
-          <div style={styles.headerRow}>
-            <button onClick={navigateToPreviousWeek} style={styles.navButton}>
-              {"<"}
-            </button>
-            <h2 style={styles.monthHeader}>{`Week of ${format(currentDate, "MMMM dd, yyyy")}`}</h2>
-            <button onClick={navigateToNextWeek} style={styles.navButton}>
-              {">"}
-            </button>
-          </div>
-
-          <div style={styles.calendarGrid}>
-            {getDaysOfWeek(currentDate).map((day) => {
-              const dayFormatted = getFormattedDate(day);
-              const daySlots = timeSlots.find((slot) => slot.date === dayFormatted)?.slots || [];
-
-              return (
-                <div key={dayFormatted} style={styles.dayContainer}>
-                  <div style={styles.day}>{format(day, "d")}</div>
-                  <div style={styles.timeSlotColumn}>
-                    {generateTimeSlots().map((time, index) => {
-                      const slot = daySlots.find((s) => s.time === time);
-                      return (
-                        <div
-                          key={index}
-                          style={styles.timeSlot}
-                          onClick={() => handleTimeSlotClick(dayFormatted, time, slot?.content || "Available")}
-                        >
-                          <div style={styles.time}>{time}</div>
-                          {slot ? <div style={styles.content}>{slot.content}</div> : <div style={styles.noContent}>Available</div>}
-                        </div>
-                      );
-                    })}
-                  </div>
+        {/* Main Content */}
+        <div className="flex w-full max-w-screen-lg mt-6 space-x-8">
+          {/* Sidebar */}
+          {selectedSlot && (
+              <div className="w-80 p-6 bg-white shadow-lg rounded-lg">
+                <h2 className="text-xl font-bold text-primary">Selected Time Slot</h2>
+                <p><strong>Time:</strong> {selectedSlot.time}</p>
+                <p><strong>Details:</strong> {selectedSlot.content}</p>
+                <input
+                    type="text"
+                    value={slotDetails}
+                    onChange={handleSlotDetailsChange}
+                    className="input input-bordered mt-4 w-full"
+                    placeholder="Add details"
+                />
+                {/* Updated button container */}
+                <div className="flex flex-col space-y-4 mt-4">
+                  <button onClick={handleBooking} className="btn btn-success w-full">Book</button>
+                  <button onClick={() => setSelectedSlot(null)} className="btn btn-error w-full">Close</button>
                 </div>
-              );
-            })}
+              </div>
+          )}
+
+          {/* Calendar */}
+          <div className="flex-1 bg-white p-6 shadow-lg rounded-lg">
+            <div className="flex items-center justify-between mb-6">
+              <button
+                  onClick={navigateToPreviousWeek}
+                  className="btn bg-black text-white text-2xl"
+              >
+                {"<"}
+              </button>
+              <h2 className="text-xl font-semibold text-black">{`Week of ${format(currentDate, "MMMM dd, yyyy")}`}</h2>
+              <button
+                  onClick={navigateToNextWeek}
+                  className="btn bg-black text-white text-2xl"
+              >
+                {">"}
+              </button>
+            </div>
+            <div className="grid grid-cols-7 gap-4 h-[700px] overflow-hidden">
+              {getDaysOfWeek(currentDate).map((day) => {
+                const dayFormatted = getFormattedDate(day);
+                const daySlots = timeSlots.find((slot) => slot.date === dayFormatted)?.slots || [];
+
+                return (
+                    <div key={dayFormatted} className="text-center flex flex-col justify-between h-full">
+                      <div className="font-semibold">{format(day, "d")}</div>
+                      <div className="flex flex-col justify-between h-full">
+                        {generateTimeSlots().map((time, index) => {
+                          const slot = daySlots.find((s) => s.time === time);
+                          return (
+                              <div
+                                  key={index}
+                                  className={`border rounded-lg cursor-pointer mt-2 mx-auto ${
+                                      selectedSlot ? "w-20" : "w-32"
+                                  } ${slot ? "bg-primary text-white" : "bg-gray-200"} p-3`}
+                                  style={{height: "calc(100% / 6)"}}  // Ensures equal height for each timeslot
+                                  onClick={() => handleTimeSlotClick(dayFormatted, time, slot?.content || "Available")}
+                              >
+                                <div className="flex flex-col justify-center items-center h-full">
+                                  <div className="text-sm font-medium">{time}</div>
+                                  {slot ? (
+                                      <div className="text-xs mt-1">{slot.content}</div>
+                                  ) : (
+                                      <div className="text-green-600 text-xs mt-1">Available</div>
+                                  )}
+                                </div>
+                              </div>
+
+                          );
+                        })}
+                      </div>
+                    </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
   );
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    height: "100vh",
-    fontFamily: "Arial, sans-serif", // Ensure a fallback font
-    backgroundColor: "#f8f9fa", // Background color for the whole container
-    position: "relative",
-    padding: "20px", // Padding to ensure elements are not at the edges
-  },
-  menuContainer: {
-    position: "absolute",
-    top: "10px",
-    left: "10px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  logo: {
-    width: "50px",
-    height: "50px",
-    borderRadius: "50%",
-    backgroundColor: "#007bff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#fff",
-    fontSize: "20px",
-    cursor: "pointer",
-    border: "2px solid #0056b3", // Border for better visibility
-  },
-  dropdownMenu: {
-    position: "absolute",
-    top: "60px",
-    left: "0",
-    backgroundColor: "#fff",
-    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-    borderRadius: "5px",
-    display: "flex",
-    flexDirection: "column",
-    width: "150px",
-    zIndex: 1000,
-  },
-  menuItem: {
-    padding: "10px",
-    textAlign: "left",
-    backgroundColor: "#fff",
-    border: "none",
-    cursor: "pointer",
-    width: "100%",
-    fontSize: "14px",
-    borderRadius: "5px", // Ensure rounded corners on menu items
-    transition: "background-color 0.3s ease", // Smooth hover effect
-  },
-  menuItemHover: {
-    backgroundColor: "#f0f0f0",
-  },
-  heading: {
-    fontSize: "2rem",
-    fontWeight: "bold",
-    marginTop: "60px",
-    color: "#333", // Ensure text color is visible on background
-  },
-  logoutButton: {
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    backgroundColor: "#007bff",
-    color: "#fff",
-    border: "none",
-    padding: "10px 20px",
-    cursor: "pointer",
-    borderRadius: "5px", // Rounded corners for logout button
-  },
-
-  mainContent: {
-    display: "flex",
-    width: "90%",
-    maxWidth: "1200px",
-    marginTop: "20px", // Spacing between header and content
-  },
-  sidebar: {
-    width: "300px",
-    padding: "20px",
-    background: "#fff",
-    boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
-    marginRight: "20px",
-    borderRadius: "5px", // Rounded corners for the sidebar
-  },
-  textField: {
-    width: "100%",
-    padding: "10px",
-    marginBottom: "10px",
-    borderRadius: "5px", // Rounded corners for input fields
-    border: "1px solid #ddd", // Light border color
-    fontSize: "16px", // Increased font size for readability
-  },
-  calendarContainer: {
-    flex: 1,
-    background: "#fff",
-    padding: "20px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-    borderRadius: "10px", // Rounded corners for the calendar container
-  },
-  headerRow: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "20px",
-    marginBottom: "15px",
-  },
-  monthHeader: {
-    fontSize: "1.5rem",
-    fontWeight: "bold",
-    color: "#333", // Ensure the text is readable
-  },
-  calendarGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(7, 1fr)",
-    gap: "10px",
-  },
-  dayContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "10px",
-  },
-  day: {
-    fontSize: "1.2rem",
-    fontWeight: "bold",
-    color: "#333", // Ensuring proper color for the day text
-  },
-  timeSlotColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-  },
-  timeSlot: {
-    padding: "15px",
-    border: "1px solid #ddd",
-    borderRadius: "5px", // Ensure rounded corners for time slots
-    textAlign: "center",
-    cursor: "pointer",
-    backgroundColor: "#f0f0f0", // Light background for time slots
-    transition: "background-color 0.3s ease", // Smooth hover effect
-  },
-  timeSlotSelected: {
-    backgroundColor: "#007bff", // Blue background for selected slot
-    color: "#fff", // White text for selected time slot
-  },
-  time: {
-    fontSize: "1rem",
-    fontWeight: "bold",
-    color: "#333", // Ensure visibility for the time text
-  },
-  content: {
-    fontSize: "0.9rem",
-    color: "#333", // Text color for content
-  },
-  noContent: {
-    fontSize: "0.9rem",
-    color: "#28a745", // Green for available time slots
-  },
-  bookButton: {
-    backgroundColor: "#28a745",
-    color: "#fff",
-    border: "2px solid #1e7e34",
-    padding: "10px 15px",
-    cursor: "pointer",
-    borderRadius: "5px", // Rounded corners for the book button
-    fontWeight: "bold",
-    transition: "background-color 0.3s ease", // Smooth hover effect
-  },
-  closeButton: {
-    backgroundColor: "#dc3545",
-    color: "#fff",
-    border: "2px solid #bd2130",
-    padding: "10px 15px",
-    cursor: "pointer",
-    borderRadius: "5px", // Rounded corners for the close button
-    fontWeight: "bold",
-    transition: "background-color 0.3s ease", // Smooth hover effect
-  },
-  navButton: {
-    fontSize: "1.5rem",
-    cursor: "pointer",
-    color: "#007bff",
-    background: "transparent",
-    border: "2px solid #007bff",
-    padding: "5px 10px",
-    borderRadius: "5px", // Rounded corners for navigation buttons
-    fontWeight: "bold",
-    transition: "background-color 0.3s ease", // Smooth hover effect
-  },
-};
-
