@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from './index';
-import { SelectUser, usersTable ,postsTable,Profile} from './schema';
+import { SelectUser, usersTable ,postsTable,Profile,SelectFeedBack,feedbackTable} from './schema';
 
 // Get user by email - returns a single user object
 export async function getUserByEmail(email: SelectUser['email']): Promise<{
@@ -74,3 +74,15 @@ export async function getTimeSlotsByDate(date: string) {
 }
 
 
+export async function getTimeSlotByDateTime(
+  date: SelectFeedBack['date'],
+  time: SelectFeedBack['time']
+): Promise<SelectFeedBack | null> {
+  const result = await db
+    .select()
+    .from(feedbackTable)
+    .where(and(eq(feedbackTable.date, date), eq(feedbackTable.time, time)))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}

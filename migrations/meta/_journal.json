@@ -29,6 +29,34 @@
       "when": 1744024066944,
       "tag": "0003_pale_yellow_claw",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1744364733430,
+      "tag": "0004_worried_carlie_cooper",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1744364793008,
+      "tag": "0005_flaky_nemesis",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1744366710097,
+      "tag": "0006_last_black_widow",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1744375917395,
+      "tag": "0007_skinny_blink",
+      "breakpoints": true
     }
   ]
 }
