@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node server.cjs",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js"
+    "start": "NODE_ENV=production node server.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -24,12 +24,12 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.40.1",
-    "geist-ui": "^0.0.102",
+    "geist-ui": "^0.0.94",
     "jose": "^6.0.8",
     "lucide-react": "^0.487.0",
     "my-next-app": "file:",
     "next": "^15.3.0",
-    "nodemailer": "^6.10.0",
+    "nodemailer": "^6.10.1",
     "react": "^19.0.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^19.0.0",
@@ -48,7 +48,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "drizzle-kit": "^0.18.1",
+    "drizzle-kit": "^0.31.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",

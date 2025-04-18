@@ -1,14 +1,8 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
-<<<<<<< HEAD
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, startOfDay, addMinutes } from "date-fns";
-import styles from "./styles";
-
-import ChatPage from "../components/ui/chatbox";
-=======
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval } from "date-fns";
->>>>>>> US-2-3-mads
+import ChatPage from "../components/ui/chatbox";
 
 type TimeSlot = {
   date: string;
@@ -31,9 +25,6 @@ export default function Dashboard() {
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [slotDetails, setSlotDetails] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
-<<<<<<< HEAD
-  const [feedBack, setFeedback] = useState <string>("");
-=======
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const [availabilityForm, setAvailabilityForm] = useState({
     title: "",
@@ -44,7 +35,6 @@ export default function Dashboard() {
     description: "",
     bookedBy: "",
   });
->>>>>>> US-2-3-mads
 
   useEffect(() => {
     fetchTimeSlotsForWeek(currentDate);
@@ -121,8 +111,6 @@ export default function Dashboard() {
       }),
     });
 
-    
-
     if (response.ok) {
       // Clear selection after booking to avoid stale state
       setSelectedSlot(null);
@@ -188,16 +176,6 @@ export default function Dashboard() {
 
   // =============== JSX ===============
   return (
-<<<<<<< HEAD
-    <div onClick={() => {if (menuOpen) setMenuOpen(!menuOpen)}} style={styles.container}>
-      <div style={styles.menuContainer}>
-        <div style={styles.logo} onClick={() => setMenuOpen(!menuOpen)}>⚪</div>
-        {menuOpen && (
-          <div style={styles.dropdownMenu}>
-            <button style={styles.menuItem}>Your Profile</button>
-            <button style={styles.menuItem}>Settings</button>
-            <button onClick={handleLogout} style={styles.menuItem}>Logout</button>
-=======
       <div onClick={() => { if (menuOpen) setMenuOpen(false) }} style={styles.container}>
         {/* =========== MENU ICON + LOGOUT =========== */}
         <div style={styles.menuContainer}>
@@ -206,7 +184,6 @@ export default function Dashboard() {
             setMenuOpen(!menuOpen);
           }}>
             ⚪
->>>>>>> US-2-3-mads
           </div>
           {menuOpen && (
               <div style={styles.dropdownMenu} onClick={(e) => e.stopPropagation()}>
@@ -219,18 +196,6 @@ export default function Dashboard() {
 
         <h1 style={styles.heading}>Welcome to Your Dashboard</h1>
 
-<<<<<<< HEAD
-      <div style={styles.mainContent}>
-        {selectedSlot && (
-          <div style={styles.sidebar}>
-            <h2 style={styles.sidebarTitle}>Selected Time Slot</h2>
-            <p style={styles.text}> 
-              <strong style={styles.textBold}>Time:</strong> {selectedSlot.time}
-            </p>
-            <p style={styles.text}>
-              <strong style={styles.textBold}>Details:</strong> {selectedSlot.content}
-            </p>
-=======
         {/* Manage Availability & Clear Calendar */}
         <div style={{ marginBottom: "20px" }}>
           <button
@@ -239,7 +204,6 @@ export default function Dashboard() {
           >
             Manage Availability
           </button>
->>>>>>> US-2-3-mads
 
           <button
               style={styles.closeButton}
@@ -258,29 +222,6 @@ export default function Dashboard() {
           </button>
         </div>
 
-<<<<<<< HEAD
-            <button style={styles.bookButton} onClick={() => handleBooking()}>
-              Book
-            </button>
-            <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
-              Close
-            </button>
-
-            <div style={styles.feedbackSection}>
-                <h3 style={styles.feedbackTitle}>Feedback</h3>
-                <textarea
-                  value={feedBack} // Correctly binding the feedback value
-                  style={styles.textarea}
-                  onChange={(e) => setFeedback(e.target.value)} // Correct syntax for updating feedback state
-                  placeholder="Write your feedback here..."
-                />
-                <button style={styles.feedbackButton}>
-                  Submit Feedback
-                </button>
-              </div>
-          </div>
-        )}
-=======
         <div style={styles.mainContent}>
           {/* =========== SIDEBAR FOR SELECTED SLOT =========== */}
           {selectedSlot && (
@@ -312,7 +253,6 @@ export default function Dashboard() {
                 </button>
               </div>
           )}
->>>>>>> US-2-3-mads
 
           {/* =========== AVAILABILITY FORM =========== */}
           {availabilityOpen && (
@@ -411,13 +351,10 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+        <ChatPage  />
+
+        {/* Optional: Add a footer or any other component here */}
       </div>
-<<<<<<< HEAD
-      <ChatPage />
-    </div>
-  );
-}
-=======
   );
 }
 
@@ -579,4 +516,3 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: "5px",
   },
 };
->>>>>>> US-2-3-mads
