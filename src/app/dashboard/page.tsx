@@ -103,6 +103,12 @@ export default function Dashboard() {
       return;
     }
 
+    
+    const handleProfile: (e: React.FormEvent) => Promise<never> = async (e) => {
+  e.preventDefault();
+  redirect("/profile");
+};
+
     console.log("Booking slot:", JSON.stringify(selectedSlot));
 
     const response = await fetch("/api/book", {
@@ -189,7 +195,9 @@ export default function Dashboard() {
             ⚪⚪</div>
         {menuOpen && (
           <div style={styles.dropdownMenu}>
-            <button style={styles.menuItem}>Your Profile</button>
+           <button style={styles.menuItem} onClick={(e) => handleProfile(e)}>
+            Your Profile
+          </button>
             <button style={styles.menuItem}>Settings</button>
             <button onClick={handleLogout} style={styles.menuItem}>Logout</button>
           </div>
