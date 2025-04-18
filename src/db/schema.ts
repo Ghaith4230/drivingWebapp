@@ -11,7 +11,6 @@ export const usersTable = sqliteTable('users', {
 
 export const postsTable = sqliteTable('timeslots', {
   date: text('date')
-    .$onUpdate(() => new Date().toISOString().split('T')[0])
     .notNull(),
 
   time: text('time').notNull(),
@@ -22,6 +21,13 @@ export const postsTable = sqliteTable('timeslots', {
 
   content: text('content').notNull(),
 
+
+  endTime: text('endTime').notNull(),
+
+  location: text('location').notNull(),
+
+  bookedBy: integer('booked_by'),
+  
 
 }, (table) => ({
   pk: primaryKey(table.date, table.time) // Composite primary key

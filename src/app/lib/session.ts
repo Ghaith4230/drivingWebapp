@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 // Generate the secret key directly as a raw Uint8Array (64 bytes)
 const secretKey = new TextEncoder().encode('my-static-secret-key'); // Raw bytes used directly
 
-export async function createSession(userEmail: string,userId: Number) {
+export async function createSession(userEmail: string,userId: number) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   console.log("the id is", userId);
@@ -28,7 +28,7 @@ export async function deleteSession() {
 
 type SessionPayload = {
   userEmail: string;
-  userId: Number;
+  userId: number;
   expiresAt: Date;
 };
 
@@ -63,6 +63,35 @@ export async function decrypt(session: string | undefined = "") {
     console.log("Failed to verify session:", error); // Log the error to get more details
     return undefined;
   }
+}
+
+export async function getSession(req: Request) {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("session")?.value;
+
+  if (!session) return null;
+
+  const payload = await decrypt(session)
+
+  const now = new Date();
+
+  const typedPayload = payload as {
+    userEmail: string;
+    userId: number;
+    expiresAt: string;
+  };
+
+  if (!typedPayload || new Date(typedPayload.expiresAt) < now) {
+    return null;
+  }
+
+  return {
+    user: {
+      email: typedPayload.userEmail,
+      id: typedPayload.userId,
+    },
+    expires: typedPayload.expiresAt,
+  };
 }
 
 
