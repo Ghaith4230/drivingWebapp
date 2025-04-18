@@ -40,6 +40,10 @@ export default function Dashboard() {
     fetchTimeSlotsForWeek(currentDate);
   }, [currentDate]);
 
+  const handleProfile = async (e: React.FormEvent) => {
+    redirect("/profile");
+  }
+
   // =============== LOGOUT HANDLER ===============
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +60,7 @@ export default function Dashboard() {
   };
 
   const fetchTimeSlots = async (start: Date, end: Date) => {
-    const response = await fetch("/api/fetchSlots", {
+    const response = await fetch("/api/fetchSlots", { 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -176,23 +180,21 @@ export default function Dashboard() {
 
   // =============== JSX ===============
   return (
-      <div onClick={() => { if (menuOpen) setMenuOpen(false) }} style={styles.container}>
-        {/* =========== MENU ICON + LOGOUT =========== */}
-        <div style={styles.menuContainer}>
-          <div style={styles.logo} onClick={(e) => {
+    <div onClick={() => {if (menuOpen) setMenuOpen(!menuOpen)}} style={styles.container}>
+      <div style={styles.menuContainer}>
+        <div  style={styles.logo} onClick={(e) => {
             e.stopPropagation();
             setMenuOpen(!menuOpen);
           }}>
-            ⚪
+            ⚪⚪</div>
+        {menuOpen && (
+          <div style={styles.dropdownMenu}>
+            <button style={styles.menuItem}>Your Profile</button>
+            <button style={styles.menuItem}>Settings</button>
+            <button onClick={handleLogout} style={styles.menuItem}>Logout</button>
           </div>
-          {menuOpen && (
-              <div style={styles.dropdownMenu} onClick={(e) => e.stopPropagation()}>
-                <button style={styles.menuItem}>Your Profile</button>
-                <button style={styles.menuItem}>Settings</button>
-                <button onClick={handleLogout} style={styles.menuItem}>Logout</button>
-              </div>
-          )}
-        </div>
+        )}
+      </div>
 
         <h1 style={styles.heading}>Welcome to Your Dashboard</h1>
 
