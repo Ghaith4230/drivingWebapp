@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import React, { useState } from 'react';
 
 interface FormData {
-  userId: number;  
+  userId: number;
   firstName: string;
   lastName: string;
   phoneNumber: string;
@@ -61,7 +61,7 @@ const FormPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     // Make the API request
     const response = await fetch("api/userId", {
       method: "POST",
@@ -70,10 +70,10 @@ const FormPage = () => {
       },
       body: JSON.stringify({/* any request body if needed*/}),
     });
-  
+
     // Parse the JSON response
     const data = await response.json();
-  
+
     // Check if the response contains the "message" field and if it can be converted to a number
     if (data && data.message) {
       const userId = parseInt(data.message, 10); // Convert message to number
@@ -81,8 +81,7 @@ const FormPage = () => {
     } else {
       console.error("Response does not contain a valid message field.");
     }
-    
-    console.log("ahhhh" + formData.userId);
+
     if (validate()) {
       createProfile(formData);
       redirect('/dashboard');
@@ -90,7 +89,27 @@ const FormPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 relative">
+      {/* Back Arrow Button */}
+ <button
+  onClick={() => window.history.back()}
+  className="absolute top-4 left-4 flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 hover:scale-105 transition-all shadow-md"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M7.707 14.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L4.414 9H16a1 1 0 110 2H4.414l3.293 3.293a1 1 0 010 1.414z"
+      clipRule="evenodd"
+    />
+  </svg>
+  Back
+</button>
+
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md text-black">
         <h2 className="text-2xl font-semibold text-center text-black">Personal Information Form</h2>
         <form className="mt-4" onSubmit={handleSubmit} noValidate>

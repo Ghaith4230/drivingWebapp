@@ -40,6 +40,22 @@ export const postsTable = sqliteTable('timeslots', {
     gender: text('Gender').notNull(),
   });
 
+  export const feedbackTable = sqliteTable('feedback', {
+    date: text('date')
+      .notNull(),
+  
+  
+    time: text('time')
+      .notNull(),
+      
+  
+    feedback: text('feedback').notNull(),
+  }, (table) => ({
+    pk: primaryKey(table.date, table.time),
+  }));
+
+
+
   export type InsertUser = typeof usersTable.$inferInsert;
   export type SelectUser = typeof usersTable.$inferSelect;
 
@@ -48,3 +64,6 @@ export const postsTable = sqliteTable('timeslots', {
 
   export type InsertProfile = typeof Profile.$inferInsert;
   export type SelectProfile = typeof Profile.$inferSelect;
+  
+  export type InsertFeedback = typeof feedbackTable.$inferInsert;
+  export type SelectFeedBack = typeof feedbackTable.$inferSelect;

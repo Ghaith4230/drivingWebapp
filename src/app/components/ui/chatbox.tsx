@@ -1,0 +1,157 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { io, Socket } from 'socket.io-client'
+import ChatStyles from '../styles/chatStyles'
+
+type ChatMessage = {
+  from: string
+  to: string
+  message: string
+}
+
+type ChatHistory = {
+  [username: string]: ChatMessage[]
+}
+
+let socket: Socket | null = null
+
+export default function ChatPage() {
+  const [username, setUsername] = useState('')
+  const [allUsers, setAllUsers] = useState<string[]>([])
+  const [selectedUser, setSelectedUser] = useState<string | null>(null)
+  const [chatHistory, setChatHistory] = useState<ChatHistory>({})
+  const [input, setInput] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    socket = io()
+
+    const handler = (msg: ChatMessage) => {
+      setChatHistory((prev) => ({
+        ...prev,
+        [msg.from]: [...(prev[msg.from] || []), msg],
+      }))
+
+      setAllUsers((prev) =>
+        prev.includes(msg.from) ? prev : [...prev, msg.from]
+      )
+    }
+
+    socket.on('private message', handler)
+
+    return () => {
+      socket?.off('private message', handler)
+      socket?.disconnect()
+    }
+  }, [])
+
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const response = await fetch('/api/userId', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        })
+        const result = await response.json()
+        setUsername(result.message)
+      } catch (err) {
+        console.error('Failed to fetch userId:', err)
+      }
+    }
+
+    getUserId()
+  }, [])
+
+  const send = () => {
+    if (!input.trim() || !socket || !selectedUser) return
+
+    const msg: ChatMessage = {
+      from: username,
+      to: selectedUser,
+      message: input,
+    }
+
+    socket.emit('private message', msg)
+
+    setChatHistory((prev) => ({
+      ...prev,
+      [selectedUser]: [...(prev[selectedUser] || []), msg],
+    }))
+
+    setInput('')
+  }
+
+  return (
+    <div>
+      {/* Toggle Chat Button */}
+      <div
+        onClick={() => setIsOpen((prev) => !prev)}
+        style={ChatStyles.chatToggle}
+      >
+        💬
+      </div>
+
+      {/* Chat Window */}
+      <div
+        style={{
+          ...ChatStyles.chatWindow,
+          ...(isOpen ? {} : ChatStyles.chatWindowHidden),
+        }}
+      >
+        {isOpen && (
+          <>
+            {/* User List */}
+            <div style={ChatStyles.userList}>
+              <h4 style={{ margin: '0 0 10px 0' }}>Users</h4>
+              {allUsers
+                .filter((user) => user !== username)
+                .map((user) => (
+                  <div
+                    key={user}
+                    onClick={() => setSelectedUser(user)}
+                    style={{
+                      ...ChatStyles.userItem,
+                      ...(user === selectedUser
+                        ? ChatStyles.userItemActive
+                        : {}),
+                    }}
+                  >
+                    {user}
+                  </div>
+                ))}
+            </div>
+
+            {/* Chat Panel */}
+            <div style={ChatStyles.chatPanel}>
+              <h3 style={{ margin: 0 }}>
+                {selectedUser
+                  ? `Chat with ${selectedUser}`
+                  : 'Select a user to chat'}
+              </h3>
+              <div style={ChatStyles.chatMessages}>
+                {(chatHistory[selectedUser || ''] || []).map((msg, i) => (
+                  <p key={i} style={{ margin: 0, padding: '2px 0' }}>
+                    <b>{msg.from === username ? 'You' : msg.from}:</b>{' '}
+                    {msg.message}
+                  </p>
+                ))}
+              </div>
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your message"
+                onKeyDown={(e) => e.key === 'Enter' && send()}
+                style={ChatStyles.chatInput}
+              />
+              <button onClick={send} style={ChatStyles.chatButton}>
+                Send
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}

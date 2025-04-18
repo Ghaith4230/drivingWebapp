@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       id: Math.floor(Math.random() * 9000),  // You might want to change this logic to auto-increment
       verificationToken: hashedToken, 
       emailVerified: false,
+      role: 'user'
     };
 
     // Save user to the database
