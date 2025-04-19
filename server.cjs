@@ -15,7 +15,8 @@ app.prepare().then(() => {
     console.log('A user connected:', socket.id)
 
     socket.on('chat message', ({ to, from, message }) => {
-      io.emit('chat message', { to, from, message }) // You can filter by room/user
+   
+      io.emit( to, { to, from, message }) // You can filter by room/user
     })
 
     socket.on('disconnect', () => {

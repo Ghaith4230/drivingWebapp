@@ -17,9 +17,9 @@ type ChatHistory = {
 let socket: Socket | null = null
 
 export default function ChatPage() {
-  const [username, setUsername] = useState('')
+  const [username, setUsername] = useState('5074')
   const [allUsers, setAllUsers] = useState<string[]>([])
-  const [selectedUser, setSelectedUser] = useState<string | null>(null)
+  const [selectedUser, setSelectedUser] = useState<string | null>("5074")
   const [chatHistory, setChatHistory] = useState<ChatHistory>({})
   const [input, setInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -28,23 +28,27 @@ export default function ChatPage() {
     socket = io()
 
     const handler = (msg: ChatMessage) => {
+      
+      const otherUser = msg.from === username ? msg.to : msg.from
+
       setChatHistory((prev) => ({
         ...prev,
-        [msg.from]: [...(prev[msg.from] || []), msg],
+        [otherUser]: [...(prev[otherUser] || []), msg],
       }))
 
+      // update user list
       setAllUsers((prev) =>
-        prev.includes(msg.from) ? prev : [...prev, msg.from]
+        prev.includes(otherUser) ? prev : [...prev, otherUser]
       )
     }
 
-    socket.on('private message', handler)
+    socket.on(username, handler)
 
     return () => {
-      socket?.off('private message', handler)
+      socket?.off('chat message', handler)
       socket?.disconnect()
     }
-  }, [])
+  }, [username]) // Make sure username is ready when handler runs
 
   useEffect(() => {
     const getUserId = async () => {
@@ -73,7 +77,7 @@ export default function ChatPage() {
       message: input,
     }
 
-    socket.emit('private message', msg)
+    socket.emit('chat message', msg)
 
     setChatHistory((prev) => ({
       ...prev,
