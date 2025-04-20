@@ -3,11 +3,14 @@
 import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import ChatStyles from '../styles/chatStyles'
+import { getContacts ,getMessages } from '@/db/select'
+import { addMessage } from '@/db/queries/insert'
 
 type ChatMessage = {
   from: string
   to: string
   message: string
+  date: string
 }
 
 type ChatHistory = {
@@ -23,6 +26,46 @@ export default function ChatPage() {
   const [chatHistory, setChatHistory] = useState<ChatHistory>({})
   const [input, setInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userResponse = await fetch('/api/userId', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        })
+        const userResult = await userResponse.json()
+        const userId = userResult.message
+        setUsername(userId)
+  
+        const contact = await getContacts(parseInt(username))
+
+        for (const c of contact) {
+          const messages = await getMessages(c.from, c.to)
+
+          for (const msg of messages) {
+            const otherUser = "" + msg.from === username ? msg.to : msg.from
+            setChatHistory((prev) => ({
+              ...prev,
+              [otherUser]: [...(prev[otherUser] || []), msg],
+            }))
+          }
+        }
+
+
+        const filteredContacts = contact
+          .filter((c: { to: any }) => Number.isInteger(c.to))
+          .map((c: { to: number }) => c.to.toString());
+        setAllUsers(filteredContacts);
+        console.log('Contacts:', filteredContacts)
+      } catch (err) {
+        console.error('Error fetching data:', err)
+      }
+    }
+  
+    fetchData()
+  }, [])
 
   useEffect(() => {
     socket = io()
@@ -50,23 +93,7 @@ export default function ChatPage() {
     }
   }, [username]) // Make sure username is ready when handler runs
 
-  useEffect(() => {
-    const getUserId = async () => {
-      try {
-        const response = await fetch('/api/userId', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        })
-        const result = await response.json()
-        setUsername(result.message)
-      } catch (err) {
-        console.error('Failed to fetch userId:', err)
-      }
-    }
 
-    getUserId()
-  }, [])
 
   const send = () => {
     if (!input.trim() || !socket || !selectedUser) return
@@ -75,7 +102,14 @@ export default function ChatPage() {
       from: username,
       to: selectedUser,
       message: input,
+      date: new Date().toISOString(),
     }
+
+    addMessage({
+      from: parseInt(username),
+      to: parseInt(selectedUser),
+      message: input, 
+      date: new Date().toISOString(),})
 
     socket.emit('chat message', msg)
 
@@ -84,6 +118,7 @@ export default function ChatPage() {
       [selectedUser]: [...(prev[selectedUser] || []), msg],
     }))
 
+    console.log(chatHistory[selectedUser])
     setInput('')
   }
 

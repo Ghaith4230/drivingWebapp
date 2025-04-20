@@ -1,5 +1,5 @@
 import { db } from '../index';
-import { InsertUser, usersTable ,Profile,postsTable,InsertPost,InsertProfile} from '../schema';
+import { InsertUser, usersTable ,Profile,postsTable,InsertPost,InsertProfile, InsertMessages,messages} from '../schema';
 import { sql } from 'drizzle-orm';
 
 interface InsertTimeSlot {
@@ -31,6 +31,9 @@ export async function createProfile(data: InsertProfile) {
   await db.insert(Profile).values(data);
 }
 
+export async function addMessage(data: InsertMessages) {
+  await db.insert(messages).values(data);
+}
 
 
 export async function updateTimeSlot(

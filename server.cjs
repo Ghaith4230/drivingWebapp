@@ -14,11 +14,11 @@ app.prepare().then(() => {
   io.on('connection', (socket) => {
     console.log('A user connected:', socket.id)
 
-    socket.on('chat message', ({ to, from, message }) => {
+    socket.on('chat message', ({ to, from, message,date}) => {
    
-      io.emit( to, { to, from, message }) // You can filter by room/user
+      io.emit( to, { to, from, message,date}) // You can filter by room/user
     })
-
+    
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id)
     })
