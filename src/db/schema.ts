@@ -6,7 +6,8 @@ export const usersTable = sqliteTable('users', {
   email: text('email').unique().notNull(),
   password: text('password').notNull(),
   verificationToken: text('verification_token'),
-  isVerified: integer('is_verified').default(0).notNull(), 
+  isVerified: integer('is_verified').default(0).notNull(),
+  role: text('role').notNull().default('student'),
 });
 
 export const postsTable = sqliteTable('timeslots', {

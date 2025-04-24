@@ -9,5 +9,8 @@ export async function GET() {
     if (!session?.userId) {
         return NextResponse.json({ userId: null, role: null });
     }
-    return NextResponse.json({ userId: session.userId, role: session.role });
+    return NextResponse.json({
+        userId: session?.userId ?? null,
+        role:   session?.role   ?? null,
+    });
 }

@@ -1,4 +1,4 @@
-// app/api/auth/route.ts
+// app/api/auth/route.ts.bak
 
 import { NextResponse } from 'next/server';
 import { decrypt } from '@/app/lib/session';

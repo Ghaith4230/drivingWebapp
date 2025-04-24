@@ -200,9 +200,12 @@ export default function Dashboard() {
           >⚪⚪</div>
           {menuOpen && (
               <div style={styles.dropdownMenu} onClick={(e) => e.stopPropagation()}>
-                <button style={styles.menuItem} onClick={handleProfile}>Your Profile</button>
-                <button style={styles.menuItem}>Settings</button>
-                <button style={styles.menuItem} onClick={handleLogout}>Logout</button>
+                <button style={styles.menuItem} onClick={() => redirect("/profile")}>
+                  Your Profile
+                </button>
+                <button style={styles.menuItem} onClick={handleLogout}>
+                  Logout
+                </button>
               </div>
           )}
         </div>
@@ -213,7 +216,10 @@ export default function Dashboard() {
         {role === "faculty" && (
             <div style={{ marginBottom: 20 }}>
               <button
-                  onClick={() => setAvailabilityOpen(true)}
+                  onClick={() => {
+                    setAvailabilityOpen(true);
+                    setSelectedSlot(null);
+                  }}
                   style={{ ...styles.bookButton, marginRight: 10 }}
               >
                 Manage Availability
@@ -221,9 +227,8 @@ export default function Dashboard() {
               <button
                   style={styles.closeButton}
                   onClick={async () => {
-                    if (!confirm("Are you sure you want to delete all your slots?")) return;
-                    const res = await fetch("/api/clearSlots", { method: "POST" });
-                    if (!res.ok) return alert("Failed to clear slots");
+                    if (!confirm("Delete all your slots?")) return;
+                    await fetch("/api/clearSlots", { method: "POST" });
                     window.location.reload();
                   }}
               >
@@ -233,59 +238,95 @@ export default function Dashboard() {
         )}
 
         <div style={styles.mainContent}>
-          {/* SIDEBAR FOR SELECTED SLOT */}
-          {selectedSlot && (
+          {/* =========== SIDEBAR FOR SELECTED SLOT =========== */}
+          {selectedSlot && !availabilityOpen && (
               <div style={styles.sidebar}>
                 <h2>Selected Time Slot</h2>
-                <p><strong>Date:</strong> {selectedSlot.date}</p>
-                <p><strong>Start Time:</strong> {selectedSlot.time}</p>
-                <p><strong>End Time:</strong> {selectedSlot.endTime}</p>
+                <p><strong>Date:</strong>     {selectedSlot.date}</p>
+                <p><strong>Start:</strong>    {selectedSlot.time}</p>
+                <p><strong>End:</strong>      {selectedSlot.endTime}</p>
                 <p><strong>Location:</strong> {selectedSlot.location}</p>
-                <p><strong>Details:</strong> {selectedSlot.content}</p>
+                <p><strong>Details:</strong>  {selectedSlot.content}</p>
+                {selectedSlot.bookedBy && (
+                    <p><strong>Booked By:</strong> User #{selectedSlot.bookedBy}</p>
+                )}
 
-                {/* Only STUDENTS can book or unbook */}
+                {/* Only students can book/unbook */}
                 {role === "student" && (
                     selectedSlot.bookedBy ? (
-                        <button
-                            style={styles.bookButton}
-                            onClick={(e) => { e.stopPropagation(); handleUnbookSlot(); }}
-                        >
+                        <button style={styles.bookButton} onClick={handleUnbookSlot}>
                           Unbook
                         </button>
                     ) : (
-                        <button
-                            style={styles.bookButton}
-                            onClick={(e) => { e.stopPropagation(); handleBooking(); }}
-                        >
+                        <button style={styles.bookButton} onClick={handleBooking}>
                           Book
                         </button>
                     )
                 )}
 
-                <button
-                    style={styles.closeButton}
-                    onClick={() => setSelectedSlot(null)}
-                >
+                <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
                   Close
                 </button>
               </div>
           )}
 
-          {/* AVAILABILITY FORM (Faculty Only) */}
-          {availabilityOpen && role === "faculty" && (
+          {/* =========== AVAILABILITY FORM (Faculty Only) =========== */}
+          {role === "faculty" && availabilityOpen && !selectedSlot && (
               <div style={styles.sidebar}>
                 <h2>Manage Availability</h2>
-                {/* … your inputs for title, date, times, location, description … */}
-                <button
-                    style={styles.bookButton}
-                    onClick={handleAvailabilitySubmit}
-                >
+
+                <input
+                    type="text"
+                    placeholder="Title"
+                    value={availabilityForm.title}
+                    onChange={(e) => setAvailabilityForm({ ...availabilityForm, title: e.target.value })}
+                    style={styles.textField}
+                />
+                <input
+                    type="date"
+                    value={availabilityForm.date}
+                    onChange={(e) => setAvailabilityForm({ ...availabilityForm, date: e.target.value })}
+                    style={styles.textField}
+                />
+                <input
+                    type="time"
+                    placeholder="Start Time"
+                    value={availabilityForm.startTime}
+                    onChange={(e) => setAvailabilityForm({ ...availabilityForm, startTime: e.target.value })}
+                    style={styles.textField}
+                />
+                <input
+                    type="time"
+                    placeholder="End Time"
+                    value={availabilityForm.endTime}
+                    onChange={(e) => setAvailabilityForm({ ...availabilityForm, endTime: e.target.value })}
+                    style={styles.textField}
+                />
+                <input
+                    type="text"
+                    placeholder="Location"
+                    value={availabilityForm.location}
+                    onChange={(e) => setAvailabilityForm({ ...availabilityForm, location: e.target.value })}
+                    style={styles.textField}
+                />
+                <textarea
+                    placeholder="Description (max 150 chars)"
+                    maxLength={150}
+                    value={availabilityForm.description}
+                    onChange={(e) => setAvailabilityForm({ ...availabilityForm, description: e.target.value })}
+                    style={{ ...styles.textField, height: "60px", resize: "none" }}
+                />
+
+                <button style={styles.bookButton} onClick={handleAvailabilitySubmit}>
                   Submit
+                </button>
+                <button style={styles.closeButton} onClick={() => setAvailabilityOpen(false)}>
+                  Cancel
                 </button>
               </div>
           )}
 
-          {/* CALENDAR GRID */}
+          {/* =========== CALENDAR GRID =========== */}
           <div style={styles.calendarContainer}>
             <div style={styles.headerRow}>
               <button onClick={navigateToPreviousWeek} style={styles.navButton}>{"<"}</button>

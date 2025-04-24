@@ -5,10 +5,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { hash } from 'bcryptjs';
 import nodemailer from 'nodemailer';
 
+const INVITE_CODE = process.env.INVITE_CODE;
+
 export async function POST(req: Request) {
   try {
-    const { email, password, text }: { email: string; password: string; text: string } =
+    const { email, password, inviteCode, role: requestedRole, text }: { email: string; password: string; inviteCode?: string; role?: 'student' | 'faculty'; text: string } =
         await req.json();
+
+    let role: 'student' | 'faculty' = 'student';
+    if (requestedRole === 'faculty' && inviteCode === INVITE_CODE) {
+      role = 'faculty';
+    }
 
     // Generate & hash a verification token
     const rawToken = uuidv4();
@@ -23,6 +30,7 @@ export async function POST(req: Request) {
       password: encryptedPassword,
       verificationToken: hashedToken,
       isVerified: 0,  // or false, depending on your schema
+      role,
     };
     await createUser(userData);
 
