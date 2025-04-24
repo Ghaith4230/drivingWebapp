@@ -36,6 +36,11 @@ async function sendM(email: string, token: string): Promise<void> {
       user: "Geoffjeff08@gmail.com", 
       pass: "aojk ynuk aswt pbjx",
     },
+    tls: {
+      // <-- add this to accept self‑signed certificates
+      rejectUnauthorized: false,
+    },
+
   });
 
   

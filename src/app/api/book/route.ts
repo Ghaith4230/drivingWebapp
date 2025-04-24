@@ -3,6 +3,7 @@ import { getUserByEmail } from '@/db/select';
 import { decrypt } from '@/app/lib/session';
 import { bookTime } from '@/db/queries/insert';
 import { cookies } from 'next/headers';
+import { updateTimeSlot } from "@/db/queries/insert";
 
 export async function POST(req: Request) {
   try {
@@ -12,6 +13,7 @@ export async function POST(req: Request) {
     // Retrieve and decrypt the session cookie
     const cookie = (await cookies()).get('session')?.value;
     const session = await decrypt(cookie);
+    const userId = session?.userId as number;
 
     // Check if the session is valid and contains a userId
     if (!session?.userId) {
@@ -21,23 +23,27 @@ export async function POST(req: Request) {
       );
     }
 
-    
-
-   
-
-
-   
-
     // Prepare the data for booking
     const userData = {
       date: date,
       time: time,
       userId: session.userId as number, // Ensure this matches the field in your database
       content: details,
+      endTime: "",
+      location: "",
+      bookedBy: null
     };
+
+    console.log(userData.date)
+    console.log(userData.time)
+    console.log(userData.userId)
     
     // Insert the booking into the database
-    await bookTime(userData);
+    await updateTimeSlot(
+        userData.date, // The date of the timeslot (part of the composite key)
+        userData.time, // The time of the timeslot (part of the composite key)
+        { bookedBy: userId } // Only updating the 'bookedBy' field
+    );
 
     // Return a success response
     return NextResponse.json({ message: "Time slot booked successfully." });

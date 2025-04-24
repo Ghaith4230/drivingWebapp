@@ -4,17 +4,18 @@ import nodemailer from 'nodemailer';
 // Generate the secret key directly as a raw Uint8Array (64 bytes)
 const secretKey = new TextEncoder().encode('my-static-secret-key'); // Raw bytes used directly
 
-export async function createSession(userEmail: string, userId: number) {
+export async function createSession(userEmail: string,userId: number) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const session = await encrypt({ userEmail, userId, expiresAt });
 
+  console.log("the id is", userId);
+  const session = await encrypt({userEmail, userId, expiresAt });
+
+  // Await the cookies call before using set
   const cookieStore = await cookies();
   cookieStore.set("session", session, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // ✅ Only secure in prod
+    secure: true,
     expires: expiresAt,
-    sameSite: 'lax', // Recommended
-    path: '/',       // Ensures it's sent on all routes
   });
 }
 
@@ -43,27 +44,54 @@ export async function encrypt(payload: SessionPayload) {
   return signedJWT;
 }
 
-export async function decrypt(session: string | undefined = ""): Promise<SessionPayload | undefined> {
+export async function decrypt(session: string | undefined = "") {
+
+
   if (!session) {
     console.log("No session found");
     return undefined;
   }
 
   try {
+    // Use the raw secretKey for verifying the JWT
     const { payload } = await jwtVerify(session, secretKey, {
       algorithms: ["HS256"],
     });
 
-    // Optional: You can validate fields more strictly here
-    return {
-      userEmail: payload.userEmail as string,
-      userId: Number(payload.userId),
-      expiresAt: new Date(payload.expiresAt as string),
-    };
+    return payload;
   } catch (error) {
-    console.log("Failed to verify session:", error);
+    console.log("Failed to verify session:", error); // Log the error to get more details
     return undefined;
   }
+}
+
+export async function getSession(req: Request) {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("session")?.value;
+
+  if (!session) return null;
+
+  const payload = await decrypt(session)
+
+  const now = new Date();
+
+  const typedPayload = payload as {
+    userEmail: string;
+    userId: number;
+    expiresAt: string;
+  };
+
+  if (!typedPayload || new Date(typedPayload.expiresAt) < now) {
+    return null;
+  }
+
+  return {
+    user: {
+      email: typedPayload.userEmail,
+      id: typedPayload.userId,
+    },
+    expires: typedPayload.expiresAt,
+  };
 }
 
 
