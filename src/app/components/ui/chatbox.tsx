@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import ChatStyles from '../styles/chatStyles'
-import { getContacts ,getMessages } from '@/db/select'
+import { getContacts, getMessages } from '@/db/select'
 import { addMessage } from '@/db/queries/insert'
 
 type ChatMessage = {
@@ -53,7 +53,6 @@ export default function ChatPage() {
           }
         }
 
-
         const filteredContacts = contact
           .filter((c: { to: any }) => Number.isInteger(c.to))
           .map((c: { to: number }) => c.to.toString());
@@ -93,8 +92,6 @@ export default function ChatPage() {
     }
   }, [username]) // Make sure username is ready when handler runs
 
-
-
   const send = () => {
     if (!input.trim() || !socket || !selectedUser) return
 
@@ -109,7 +106,8 @@ export default function ChatPage() {
       from: parseInt(username),
       to: parseInt(selectedUser),
       message: input, 
-      date: new Date().toISOString(),})
+      date: new Date().toISOString(),
+    })
 
     socket.emit('chat message', msg)
 
@@ -120,6 +118,14 @@ export default function ChatPage() {
 
     console.log(chatHistory[selectedUser])
     setInput('')
+  }
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const hours = date.getHours() % 12 || 12
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    const ampm = date.getHours() >= 12 ? 'PM' : 'AM'
+    return `${hours}:${minutes} ${ampm}`
   }
 
   return (
@@ -171,10 +177,39 @@ export default function ChatPage() {
               </h3>
               <div style={ChatStyles.chatMessages}>
                 {(chatHistory[selectedUser || ''] || []).map((msg, i) => (
-                  <p key={i} style={{ margin: 0, padding: '2px 0' }}>
-                    <b>{msg.from === username ? 'You' : msg.from}:</b>{' '}
-                    {msg.message}
-                  </p>
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      justifyContent: msg.from === username ? 'flex-end' : 'flex-start',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        maxWidth: '60%',
+                        padding: '10px',
+                        backgroundColor: msg.from === username ? '#00bfff' : '#e0e0e0',
+                        borderRadius: '20px',
+                        color: msg.from === username ? 'white' : 'black',
+                        wordWrap: 'break-word',
+                        position: 'relative',
+                      }}
+                    >
+                      {/* Timestamp Above the Bubble */}
+                      <div
+                        style={{
+                          fontSize: '0.8em',
+                          color: '#777',
+                          marginBottom: '5px',
+                          textAlign: msg.from === username ? 'right' : 'left',
+                        }}
+                      >
+                        {formatTimestamp(msg.date)}
+                      </div>
+                      <b>{msg.from === username ? 'You' : msg.from}:</b> {msg.message}
+                    </div>
+                  </div>
                 ))}
               </div>
               <input
