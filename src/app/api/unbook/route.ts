@@ -15,10 +15,6 @@ export async function POST(req: Request) {
         const session = await decrypt(cookie);
         const userId = session?.userId;
 
-        if (session?.role !== "student") {
-            return NextResponse.json({ message: "Forbidden! You do not have faculty-privileges!" }, { status: 403 });
-        }
-
         if (!userId) {
             return NextResponse.json(
                 { message: "User not authorized." },

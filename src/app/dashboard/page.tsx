@@ -35,13 +35,8 @@ export default function Dashboard() {
     description: "",
     bookedBy: "",
   });
-  const [role, setRole] = useState<"student" | "faculty" | null>(null);
 
   useEffect(() => {
-    fetch("/api/loggedInUser")
-        .then((r) => r.json())
-        .then((data) => setRole(data.role))
-        .catch(() => setRole(null));
     fetchTimeSlotsForWeek(currentDate);
   }, [currentDate]);
 
@@ -191,87 +186,86 @@ export default function Dashboard() {
 
   // =============== JSX ===============
   return (
-      <div onClick={() => menuOpen && setMenuOpen(false)} style={styles.container}>
-        {/* MENU + LOGOUT */}
-        <div style={styles.menuContainer}>
-          <div
-              style={styles.logo}
-              onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
-          >⚪⚪</div>
-          {menuOpen && (
-              <div style={styles.dropdownMenu} onClick={(e) => e.stopPropagation()}>
-                <button style={styles.menuItem} onClick={() => redirect("/profile")}>
-                  Your Profile
-                </button>
-                <button style={styles.menuItem} onClick={handleLogout}>
-                  Logout
-                </button>
-              </div>
-          )}
-        </div>
+    <div onClick={() => {if (menuOpen) setMenuOpen(!menuOpen)}} style={styles.container}>
+      <div style={styles.menuContainer}>
+        <div  style={styles.logo} onClick={(e) => {
+            e.stopPropagation();
+            setMenuOpen(!menuOpen);
+          }}>
+            ⚪⚪</div>
+        {menuOpen && (
+          <div style={styles.dropdownMenu}>
+           <button style={styles.menuItem} onClick={(e) => handleProfile(e)}>
+            Your Profile
+          </button>
+            <button style={styles.menuItem}>Settings</button>
+            <button onClick={handleLogout} style={styles.menuItem}>Logout</button>
+          </div>
+        )}
+      </div>
 
         <h1 style={styles.heading}>Welcome to Your Dashboard</h1>
 
-        {/* FACULTY CONTROLS */}
-        {role === "faculty" && (
-            <div style={{ marginBottom: 20 }}>
-              <button
-                  onClick={() => {
-                    setAvailabilityOpen(true);
-                    setSelectedSlot(null);
-                  }}
-                  style={{ ...styles.bookButton, marginRight: 10 }}
-              >
-                Manage Availability
-              </button>
-              <button
-                  style={styles.closeButton}
-                  onClick={async () => {
-                    if (!confirm("Delete all your slots?")) return;
-                    await fetch("/api/clearSlots", { method: "POST" });
-                    window.location.reload();
-                  }}
-              >
-                Clear Calendar
-              </button>
-            </div>
-        )}
+        {/* Manage Availability & Clear Calendar */}
+        <div style={{ marginBottom: "20px" }}>
+          <button
+              onClick={() => setAvailabilityOpen(true)}
+              style={{ ...styles.bookButton, marginRight: "10px" }}
+          >
+            Manage Availability
+          </button>
+
+          <button
+              style={styles.closeButton}
+              onClick={async () => {
+                const confirmClear = confirm("Are you sure you want to delete all your slots?");
+                if (!confirmClear) return;
+                const response = await fetch("/api/clearSlots", { method: "POST" });
+                if (!response.ok) {
+                  alert("Failed to clear slots");
+                  return;
+                }
+                window.location.reload();
+              }}
+          >
+            Clear Calendar
+          </button>
+        </div>
 
         <div style={styles.mainContent}>
           {/* =========== SIDEBAR FOR SELECTED SLOT =========== */}
-          {selectedSlot && !availabilityOpen && (
+          {selectedSlot && (
               <div style={styles.sidebar}>
                 <h2>Selected Time Slot</h2>
-                <p><strong>Date:</strong>     {selectedSlot.date}</p>
-                <p><strong>Start:</strong>    {selectedSlot.time}</p>
-                <p><strong>End:</strong>      {selectedSlot.endTime}</p>
-                <p><strong>Location:</strong> {selectedSlot.location}</p>
-                <p><strong>Details:</strong>  {selectedSlot.content}</p>
-                {selectedSlot.bookedBy && (
-                    <p><strong>Booked By:</strong> User #{selectedSlot.bookedBy}</p>
+                <p><strong>Date:</strong> {selectedSlot.date}</p>
+                <p><strong>startTime:</strong> {selectedSlot.time}</p>
+                <p><strong>endTime:</strong> {selectedSlot.endTime}</p>
+                <p><strong>location:</strong> {selectedSlot.location}</p>
+                <p><strong>Details:</strong> {selectedSlot.content}</p>
+                <input
+                    type="text"
+                    value={slotDetails}
+                    onChange={handleSlotDetailsChange}
+                    style={styles.textField}
+                    placeholder="Add details"
+                />
+                {selectedSlot.bookedBy ? (
+                    <button style={styles.bookButton} onClick={handleUnbookSlot}>
+                      Unbook
+                    </button>
+                ) : (
+                    <button style={styles.bookButton} onClick={handleBooking}>
+                      Book
+                    </button>
                 )}
-
-                {/* Only students can book/unbook */}
-                {role === "student" && (
-                    selectedSlot.bookedBy ? (
-                        <button style={styles.bookButton} onClick={handleUnbookSlot}>
-                          Unbook
-                        </button>
-                    ) : (
-                        <button style={styles.bookButton} onClick={handleBooking}>
-                          Book
-                        </button>
-                    )
-                )}
-
                 <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
                   Close
                 </button>
               </div>
           )}
 
-          {/* =========== AVAILABILITY FORM (Faculty Only) =========== */}
-          {role === "faculty" && availabilityOpen && !selectedSlot && (
+          {/* =========== AVAILABILITY FORM =========== */}
+          {availabilityOpen && (
               <div style={styles.sidebar}>
                 <h2>Manage Availability</h2>
 
@@ -316,42 +310,42 @@ export default function Dashboard() {
                     onChange={(e) => setAvailabilityForm({ ...availabilityForm, description: e.target.value })}
                     style={{ ...styles.textField, height: "60px", resize: "none" }}
                 />
-
                 <button style={styles.bookButton} onClick={handleAvailabilitySubmit}>
                   Submit
-                </button>
-                <button style={styles.closeButton} onClick={() => setAvailabilityOpen(false)}>
-                  Cancel
                 </button>
               </div>
           )}
 
-          {/* =========== CALENDAR GRID =========== */}
+          {/* =========== CALENDAR =========== */}
           <div style={styles.calendarContainer}>
             <div style={styles.headerRow}>
               <button onClick={navigateToPreviousWeek} style={styles.navButton}>{"<"}</button>
-              <h2 style={styles.monthHeader}>
-                Week of {format(currentDate, "MMMM dd, yyyy")}
-              </h2>
+              <h2 style={styles.monthHeader}>{`Week of ${format(currentDate, "MMMM dd, yyyy")}`}</h2>
               <button onClick={navigateToNextWeek} style={styles.navButton}>{">"}</button>
             </div>
+
             <div style={styles.calendarGrid}>
               {getDaysOfWeek(currentDate).map((day) => {
-                const dayKey = format(day, "yyyy-MM-dd");
-                const slots = timeSlots.find((d) => d.date === dayKey)?.slots || [];
+                const dayFormatted = getFormattedDate(day);
+                // DB data for this day
+                const daySlots = timeSlots.find((slot) => slot.date === dayFormatted)?.slots || [];
+
                 return (
-                    <div key={dayKey} style={styles.dayContainer}>
+                    <div key={dayFormatted} style={styles.dayContainer}>
                       <div style={styles.day}>{format(day, "d")}</div>
+
                       <div style={styles.timeSlotColumn}>
-                        {slots.length === 0 ? (
-                            <div style={{ fontSize: 14, color: "#999" }}>No slots</div>
+                        {daySlots.length === 0 ? (
+                            <div style={{ marginTop: "10px", fontSize: "0.9rem", color: "#999" }}>
+                              No slots
+                            </div>
                         ) : (
-                            slots.map((slot, i) => (
+                            daySlots.map((slot, index) => (
                                 <div
-                                    key={i}
+                                    key={index}
                                     style={{
                                       ...styles.timeSlot,
-                                      backgroundColor: slot.bookedBy ? "#ffcccc" : "#ccffcc",
+                                      backgroundColor: slot.bookedBy ? "#ffcccc" : "#ccffcc", // red if booked, green if available
                                     }}
                                     onClick={() => handleTimeSlotClick(slot)}
                                 >
@@ -366,9 +360,10 @@ export default function Dashboard() {
               })}
             </div>
           </div>
-
-          <ChatPage />
         </div>
+        <ChatPage  />
+
+        {/* Optional: Add a footer or any other component here */}
       </div>
   );
 }

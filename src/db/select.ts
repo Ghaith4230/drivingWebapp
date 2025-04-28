@@ -9,7 +9,6 @@ export async function getUserByEmail(email: SelectUser['email']): Promise<{
   password: string;
   verificationToken: string | null;
   isVerified: boolean;
-  role: "student" | "faculty";
 } | null> {
   const users = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
 
