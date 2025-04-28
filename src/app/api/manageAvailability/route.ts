@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        if (session?.role !== "faculty") {
+            return NextResponse.json({ message: "Forbidden! Only faculty may manageAvailability!" }, { status: 403 });
+        }
+
         const body = await req.json();
         const { startTime, endTime, title, date, location } = body;
 

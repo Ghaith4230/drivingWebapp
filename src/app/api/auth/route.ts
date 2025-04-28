@@ -1,4 +1,4 @@
-// app/api/auth/route.ts
+// app/api/auth/route.ts.bak
 
 import { NextResponse } from 'next/server';
 import { getUserByEmail } from "../../../db/select"; // Adjust path if necessary
@@ -35,7 +35,13 @@ export async function POST(req: Request) {
     // Create session for the user
 
 
-    await createSession(user.email,user.id);
+    // await createSession({
+    //   userId: user.id,
+    //   email: user.email,
+    //   role: user.role,
+    // });
+
+    await createSession(user.email, user.id, user.role)
   
 
     // Send a success response
