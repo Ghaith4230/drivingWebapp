@@ -74,6 +74,7 @@ export async function getTimeSlotsByDate(date: string) {
 }
 
 
+
 export async function getTimeSlotByDateTime(
   date: SelectFeedBack['date'],
   time: SelectFeedBack['time']
@@ -85,4 +86,25 @@ export async function getTimeSlotByDateTime(
     .limit(1);
 
   return result.length > 0 ? result[0] : null;
+}
+
+export async function getBookedLessonsByUserId(userId: number): Promise<{
+  date: string;
+  time: string;
+  endTime: string;
+  location: string;
+  content: string;
+}[]> {
+  const lessons = await db
+    .select({
+      date: postsTable.date,
+      time: postsTable.time,
+      endTime: postsTable.endTime,
+      location: postsTable.location,
+      content: postsTable.content,
+    })
+    .from(postsTable)
+    .where(eq(postsTable.bookedBy, userId));
+
+  return lessons;
 }
