@@ -12,9 +12,18 @@ export default function Profile() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
   const router = useRouter();
+  const [bookedLessons, setBookedLessons] = useState<TimeSlot[]>([]); 
 
 
-
+  type TimeSlot = {
+    date: string;
+    time: string;
+    endTime: string;
+    location: string;
+    content: string;
+    bookedBy: string;
+  };
+  
   useEffect(() => {
 
     const fetchProfile = async () => {
@@ -33,11 +42,25 @@ export default function Profile() {
       const profile = await getProfileByUserId(result.message)
 
      setProfileData(profile);
+
+     const lessons = await fetchBookedLessons(result.message);
+     setBookedLessons(lessons);
     };
 
     fetchProfile();
     
   }, []);
+
+
+  const fetchBookedLessons = async (userId: string) => {
+    const response = await fetch("/api/bookedLessons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    return await response.json(); // expecting: { lessons: [...] }
+  };
+
  
 
   const handleDashboard = async (e: React.FormEvent) => {
@@ -97,6 +120,29 @@ export default function Profile() {
   <p><strong>Gender:</strong> {profileData?.gender || "Loading..."}</p>
 </div>
 
+<h2 style={{ marginTop: "40px", fontSize: "1.5rem" }}>Your Booked Lessons</h2>
+<div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "20px" }}>
+  {bookedLessons.length > 0 ? (
+    bookedLessons.map((lesson, index) => (
+      <div key={index} style={{
+        background: "#fff",
+        borderRadius: "10px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        padding: "20px",
+        width: "250px"
+      }}>
+        <h3 style={{ fontSize: "1.2rem", marginBottom: "10px" }}>{lesson.content}</h3>
+        <p><strong>Date:</strong> {lesson.date}</p>
+        <p><strong>Time:</strong> {lesson.time} - {lesson.endTime}</p>
+        <p><strong>Location:</strong> {lesson.location}</p>
+      </div>
+    ))
+  ) : (
+    <p>You have no lessons booked.</p>
+  )}
+</div>
+
     </div>
+    
   );
 }
