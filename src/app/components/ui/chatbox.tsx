@@ -3,11 +3,14 @@
 import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import ChatStyles from '../styles/chatStyles'
+import { getContacts, getMessages } from '@/db/select'
+import { addMessage } from '@/db/queries/insert'
 
 type ChatMessage = {
   from: string
   to: string
   message: string
+  date: string
 }
 
 type ChatHistory = {
@@ -17,52 +20,77 @@ type ChatHistory = {
 let socket: Socket | null = null
 
 export default function ChatPage() {
-  const [username, setUsername] = useState('')
+  const [username, setUsername] = useState('5074')
   const [allUsers, setAllUsers] = useState<string[]>([])
-  const [selectedUser, setSelectedUser] = useState<string | null>(null)
+  const [selectedUser, setSelectedUser] = useState<string | null>("5074")
   const [chatHistory, setChatHistory] = useState<ChatHistory>({})
   const [input, setInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    socket = io()
-
-    const handler = (msg: ChatMessage) => {
-      setChatHistory((prev) => ({
-        ...prev,
-        [msg.from]: [...(prev[msg.from] || []), msg],
-      }))
-
-      setAllUsers((prev) =>
-        prev.includes(msg.from) ? prev : [...prev, msg.from]
-      )
-    }
-
-    socket.on('private message', handler)
-
-    return () => {
-      socket?.off('private message', handler)
-      socket?.disconnect()
-    }
-  }, [])
-
-  useEffect(() => {
-    const getUserId = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/userId', {
+        const userResponse = await fetch('/api/userId', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
         })
-        const result = await response.json()
-        setUsername(result.message)
+        const userResult = await userResponse.json()
+        const userId = userResult.message
+        setUsername(userId)
+  
+        const contact = await getContacts(parseInt(username))
+
+        for (const c of contact) {
+          const messages = await getMessages(c.from, c.to)
+
+          for (const msg of messages) {
+            const otherUser = "" + msg.from === username ? msg.to : msg.from
+            setChatHistory((prev) => ({
+              ...prev,
+              [otherUser]: [...(prev[otherUser] || []), msg],
+            }))
+          }
+        }
+
+        const filteredContacts = contact
+          .filter((c: { to: any }) => Number.isInteger(c.to))
+          .map((c: { to: number }) => c.to.toString());
+        setAllUsers(filteredContacts);
+        console.log('Contacts:', filteredContacts)
       } catch (err) {
-        console.error('Failed to fetch userId:', err)
+        console.error('Error fetching data:', err)
       }
     }
-
-    getUserId()
+  
+    fetchData()
   }, [])
+
+  useEffect(() => {
+    socket = io()
+
+    const handler = (msg: ChatMessage) => {
+      
+      const otherUser = msg.from === username ? msg.to : msg.from
+
+      setChatHistory((prev) => ({
+        ...prev,
+        [otherUser]: [...(prev[otherUser] || []), msg],
+      }))
+
+      // update user list
+      setAllUsers((prev) =>
+        prev.includes(otherUser) ? prev : [...prev, otherUser]
+      )
+    }
+
+    socket.on(username, handler)
+
+    return () => {
+      socket?.off('chat message', handler)
+      socket?.disconnect()
+    }
+  }, [username]) // Make sure username is ready when handler runs
 
   const send = () => {
     if (!input.trim() || !socket || !selectedUser) return
@@ -71,16 +99,33 @@ export default function ChatPage() {
       from: username,
       to: selectedUser,
       message: input,
+      date: new Date().toISOString(),
     }
 
-    socket.emit('private message', msg)
+    addMessage({
+      from: parseInt(username),
+      to: parseInt(selectedUser),
+      message: input, 
+      date: new Date().toISOString(),
+    })
+
+    socket.emit('chat message', msg)
 
     setChatHistory((prev) => ({
       ...prev,
       [selectedUser]: [...(prev[selectedUser] || []), msg],
     }))
 
+    console.log(chatHistory[selectedUser])
     setInput('')
+  }
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const hours = date.getHours() % 12 || 12
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    const ampm = date.getHours() >= 12 ? 'PM' : 'AM'
+    return `${hours}:${minutes} ${ampm}`
   }
 
   return (
@@ -132,10 +177,39 @@ export default function ChatPage() {
               </h3>
               <div style={ChatStyles.chatMessages}>
                 {(chatHistory[selectedUser || ''] || []).map((msg, i) => (
-                  <p key={i} style={{ margin: 0, padding: '2px 0' }}>
-                    <b>{msg.from === username ? 'You' : msg.from}:</b>{' '}
-                    {msg.message}
-                  </p>
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      justifyContent: msg.from === username ? 'flex-end' : 'flex-start',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        maxWidth: '60%',
+                        padding: '10px',
+                        backgroundColor: msg.from === username ? '#00bfff' : '#e0e0e0',
+                        borderRadius: '20px',
+                        color: msg.from === username ? 'white' : 'black',
+                        wordWrap: 'break-word',
+                        position: 'relative',
+                      }}
+                    >
+                      {/* Timestamp Above the Bubble */}
+                      <div
+                        style={{
+                          fontSize: '0.8em',
+                          color: '#777',
+                          marginBottom: '5px',
+                          textAlign: msg.from === username ? 'right' : 'left',
+                        }}
+                      >
+                        {formatTimestamp(msg.date)}
+                      </div>
+                      <b>{msg.from === username ? 'You' : msg.from}:</b> {msg.message}
+                    </div>
+                  </div>
                 ))}
               </div>
               <input

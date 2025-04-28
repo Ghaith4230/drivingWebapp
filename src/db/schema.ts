@@ -1,4 +1,4 @@
-  import { sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
   import { integer, primaryKey, sqliteTable, text} from 'drizzle-orm/sqlite-core';
 
 export const usersTable = sqliteTable('users', {
@@ -7,6 +7,7 @@ export const usersTable = sqliteTable('users', {
   password: text('password').notNull(),
   verificationToken: text('verification_token'),
   isVerified: integer('is_verified').default(0).notNull(), 
+  role : text('role').default('user').notNull(), // Default role is 'user'
 });
 
 export const postsTable = sqliteTable('timeslots', {
@@ -46,6 +47,24 @@ export const postsTable = sqliteTable('timeslots', {
     gender: text('Gender').notNull(),
   });
 
+  
+  export const contacts = sqliteTable('contacts', {
+    from: integer('from')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+    to: integer('to').notNull(),
+  });
+
+  export const messages = sqliteTable('messages', {
+    from: integer('from')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+    to: integer('to').notNull(),
+    message: text('message').notNull(),
+    date: text('date').notNull(), 
+  });
+
+
   export const feedbackTable = sqliteTable('feedback', {
     date: text('date')
       .notNull(),
@@ -73,3 +92,9 @@ export const postsTable = sqliteTable('timeslots', {
   
   export type InsertFeedback = typeof feedbackTable.$inferInsert;
   export type SelectFeedBack = typeof feedbackTable.$inferSelect;
+
+  export type InsertContacts = typeof contacts.$inferInsert;
+  export type SelectContacts = typeof contacts.$inferSelect;
+
+  export type InsertMessages = typeof messages.$inferInsert;
+  export type SelectMessages = typeof messages.$inferSelect;
