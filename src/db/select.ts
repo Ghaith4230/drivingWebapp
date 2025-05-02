@@ -9,6 +9,7 @@ export async function getUserByEmail(email: SelectUser['email']): Promise<{
   password: string;
   verificationToken: string | null;
   isVerified: boolean;
+  role: string;
 } | null> {
   const users = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
 
@@ -31,6 +32,7 @@ export async function getUserById(id: SelectUser['id']): Promise<{
   password: string;
   verificationToken: string | null;
   isVerified: boolean;
+  role: string;
 } | null> {
   const users = await db.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
 

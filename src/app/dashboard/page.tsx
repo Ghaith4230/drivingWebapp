@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval } from "date-fns";
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, set } from "date-fns";
 import ChatPage from "../components/ui/chatbox";
-
+import { getUserById } from "@/db/select";
 type TimeSlot = {
   date: string;
   time: string;   // StartTime
@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [timeSlots, setTimeSlots] = useState<{ date: string; slots: TimeSlot[] }[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [slotDetails, setSlotDetails] = useState<string>("");
+  const [studentRole, setStudentRole] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const [availabilityForm, setAvailabilityForm] = useState({
@@ -38,7 +39,27 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchTimeSlotsForWeek(currentDate);
+  
+    const fetchData = async () => {
+      const userResponse = await fetch('/api/userId', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const userResult = await userResponse.json();
+      const userId = userResult.message;
+      const user = await getUserById(parseInt(userId));
+  
+      if (user?.role) {
+       setStudentRole(user.role); // ← This sets it in state  
+      }
+    };
+  
+    fetchData();
   }, [currentDate]);
+
+
+
 
   const handleProfile = async (e: React.FormEvent) => {
     redirect("/profile");
@@ -206,31 +227,33 @@ export default function Dashboard() {
 
         <h1 style={styles.heading}>Welcome to Your Dashboard</h1>
 
-        {/* Manage Availability & Clear Calendar */}
-        <div style={{ marginBottom: "20px" }}>
+       {/* Manage Availability & Clear Calendar */}
+       {studentRole === "faculty" && (
+       <div style={{ marginBottom: "20px" }}>
           <button
-              onClick={() => setAvailabilityOpen(true)}
-              style={{ ...styles.bookButton, marginRight: "10px" }}
+            onClick={() => setAvailabilityOpen(true)}
+            style={{ ...styles.bookButton, marginRight: "10px" }}
           >
             Manage Availability
           </button>
 
           <button
-              style={styles.closeButton}
-              onClick={async () => {
-                const confirmClear = confirm("Are you sure you want to delete all your slots?");
-                if (!confirmClear) return;
-                const response = await fetch("/api/clearSlots", { method: "POST" });
-                if (!response.ok) {
-                  alert("Failed to clear slots");
-                  return;
-                }
-                window.location.reload();
-              }}
+            style={styles.closeButton}
+            onClick={async () => {
+              const confirmClear = confirm("Are you sure you want to delete all your slots?");
+              if (!confirmClear) return;
+              const response = await fetch("/api/clearSlots", { method: "POST" });
+              if (!response.ok) {
+                alert("Failed to clear slots");
+                return;
+              }
+              window.location.reload();
+            }}
           >
             Clear Calendar
           </button>
         </div>
+      )}
 
         <div style={styles.mainContent}>
           {/* =========== SIDEBAR FOR SELECTED SLOT =========== */}
