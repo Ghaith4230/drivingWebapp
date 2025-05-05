@@ -11,6 +11,7 @@ type TimeSlot = {
   location: string;
   content: string;
   bookedBy: string;
+  completed: boolean;
 };
 
 type datee = {
@@ -24,6 +25,7 @@ export default function Dashboard() {
   const [timeSlots, setTimeSlots] = useState<{ date: string; slots: TimeSlot[] }[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [slotDetails, setSlotDetails] = useState<string>("");
+  const [slotStatus, setSlotStatus] = useState(false);
   const [studentRole, setStudentRole] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
@@ -35,6 +37,7 @@ export default function Dashboard() {
     location: "",
     description: "",
     bookedBy: "",
+    status: "",
   });
 
   useEffect(() => {
@@ -111,6 +114,7 @@ export default function Dashboard() {
     setCurrentDay({ date: slot.date, time: slot.time });
     setSelectedSlot(slot);
     setSlotDetails(slot.content);
+    setStatus()
   };
 
   const handleSlotDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,6 +151,34 @@ export default function Dashboard() {
       setSelectedSlot(null);
       setCurrentDay(null);
       window.location.reload();
+    }
+  }
+
+  async function handleSlotStatus(): Promise<void> {
+    if (!selectedSlot) {
+      console.error("No timeslot selected for completion.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/unbook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: selectedSlot.date,
+          time: selectedSlot.time,
+        }),
+      });
+
+      if (response.ok) {
+        setSelectedSlot(null);
+        // Optionally update local state instead of reloading.
+        window.location.reload();
+      } else {
+        console.error("Failed to unbook the timeslot.");
+      }
+    } catch (error) {
+      console.error("Error unbooking the slot:", error);
     }
   }
 
@@ -265,6 +297,7 @@ export default function Dashboard() {
                 <p><strong>endTime:</strong> {selectedSlot.endTime}</p>
                 <p><strong>location:</strong> {selectedSlot.location}</p>
                 <p><strong>Details:</strong> {selectedSlot.content}</p>
+                <p><strong>status:</strong> {selectedSlot.completed}</p>
                 <input
                     type="text"
                     value={slotDetails}
@@ -280,7 +313,12 @@ export default function Dashboard() {
                     <button style={styles.bookButton} onClick={handleBooking}>
                       Book
                     </button>
-                )}
+                ) }
+                (
+                    <button style={styles.bookButton} onClick={handleUnbookSlot}>
+                      Complete
+                    </button>
+                )
                 <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
                   Close
                 </button>

@@ -22,6 +22,7 @@ export default function Profile() {
     location: string;
     content: string;
     bookedBy: string;
+    completed: boolean;
   };
   
   useEffect(() => {
