@@ -214,7 +214,7 @@ export default function ChatPage() {
               </div>
               <input
                 value={input}
-                onChange={(e) => console.log(chatHistory)}
+                onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message"
                 onKeyDown={(e) => e.key === 'Enter' && send()}
                 style={ChatStyles.chatInput}
