@@ -141,3 +141,24 @@ export async function getBookedLessonsByUserId(userId: number): Promise<{
 
   return lessons;
 }
+
+export async function getCompletedLessonsByUserId(userId: number): Promise<{
+  date: string;
+  time: string;
+  endTime: string;
+  location: string;
+  content: string;
+}[]> {
+  const lessons = await db
+    .select({
+      date: postsTable.date,
+      time: postsTable.time,
+      endTime: postsTable.endTime,
+      location: postsTable.location,
+      content: postsTable.content,
+    })
+    .from(postsTable)
+    .where(eq(postsTable.bookedBy, userId)); // || completed
+
+  return lessons;
+}

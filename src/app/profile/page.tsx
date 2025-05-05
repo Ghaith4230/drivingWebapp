@@ -13,6 +13,7 @@ export default function Profile() {
   const [profileData, setProfileData] = useState<any>(null);
   const router = useRouter();
   const [bookedLessons, setBookedLessons] = useState<TimeSlot[]>([]); 
+  const [completedLessons, setCompletedLessons ] = useState<TimeSlot[]>([]);
 
 
   type TimeSlot = {
@@ -54,6 +55,15 @@ export default function Profile() {
 
   const fetchBookedLessons = async (userId: string) => {
     const response = await fetch("/api/bookedLessons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    return await response.json(); // expecting: { lessons: [...] }
+  };
+
+  const fetchCompletedLessons = async (userId: string) => {
+    const response = await fetch("/api/completedLessons", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),
@@ -139,6 +149,28 @@ export default function Profile() {
     ))
   ) : (
     <p>You have no lessons booked.</p>
+  )}
+</div>
+
+<h2 style={{ marginTop: "40px", fontSize: "1.5rem" }}>Your Completed Lessons</h2>
+<div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "20px" }}>
+  {completedLessons.length > 0 ? (
+    completedLessons.map((lesson, index) => (
+      <div key={index} style={{
+        background: "#fff",
+        borderRadius: "10px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        padding: "20px",
+        width: "250px"
+      }}>
+        <h3 style={{ fontSize: "1.2rem", marginBottom: "10px" }}>{lesson.content}</h3>
+        <p><strong>Date:</strong> {lesson.date}</p>
+        <p><strong>Time:</strong> {lesson.time} - {lesson.endTime}</p>
+        <p><strong>Location:</strong> {lesson.location}</p>
+      </div>
+    ))
+  ) : (
+    <p>You have no completed lessons.</p>
   )}
 </div>
 
