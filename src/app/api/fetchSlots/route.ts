@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const allSlots = [];
     for (const date of current) {
       const slots = await getTimeSlotsByDate(date.toString());
-      const cleanedSlots = slots.map(({ date, time, endTime, location, content, bookedBy }) => ({ date, time, endTime, location, content, bookedBy }));
+      const cleanedSlots = slots.map(({ date, time, endTime, location, content, bookedBy, status }) => ({ date, time, endTime, location, content, bookedBy, status }));
       allSlots.push({ date, slots: cleanedSlots });
     }
     const response = allSlots.map(({ date, slots }) => ({ date, slots }));

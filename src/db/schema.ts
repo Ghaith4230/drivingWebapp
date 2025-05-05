@@ -28,6 +28,8 @@ export const postsTable = sqliteTable('timeslots', {
   location: text('location').notNull(),
 
   bookedBy: integer('booked_by'),
+
+  status: text('status').notNull().default('scheduled'),
   
 
 }, (table) => ({

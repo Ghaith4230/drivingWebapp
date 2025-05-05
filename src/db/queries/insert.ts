@@ -1,6 +1,6 @@
 import { db } from '../index';
 import { InsertUser, usersTable ,Profile,postsTable,InsertPost,InsertProfile, InsertMessages,messages} from '../schema';
-import { sql } from 'drizzle-orm';
+import {and, eq, sql} from 'drizzle-orm';
 
 interface InsertTimeSlot {
   date: string;
@@ -10,6 +10,7 @@ interface InsertTimeSlot {
   endTime: string;
   location: string;
   bookedBy?: number;
+  status?: 'scheduled' | 'booked' | 'completed';
 }
 
 export async function createUser(data: InsertUser) {
@@ -45,5 +46,9 @@ export async function updateTimeSlot(
       .update(postsTable) // Update the 'timeslots' table
       .set(data) // Set the new data to update
       .where(sql`${postsTable.date} = ${date} AND ${postsTable.time} = ${time}`); // Composite key condition
+}
+
+export async function completeTimeSlot(date: string, time: string) {
+  await db.update(postsTable).set({ status: 'completed'}).where(and(eq(postsTable.date, date), eq(postsTable.time, time),));
 }
 

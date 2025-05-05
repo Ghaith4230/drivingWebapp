@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, set } from "date-fns";
 import ChatPage from "../components/ui/chatbox";
 import { getUserById } from "@/db/select";
+import {headers} from "next/headers";
 type TimeSlot = {
   date: string;
   time: string;   // StartTime
@@ -11,6 +12,7 @@ type TimeSlot = {
   location: string;
   content: string;
   bookedBy: string;
+  status: 'scheduled' | 'booked' | 'completed';
 };
 
 type datee = {
@@ -89,7 +91,17 @@ export default function Dashboard() {
       }),
     });
     const array = await response.json();
-    return array;
+    console.log("🏷️ fetchSlots response:", JSON.stringify(array, null, 2));
+
+    /* return array;*/
+    return array.map((day: any) => ({
+      date: day.date,
+      slots: day.slots.map((slot: any) => ({
+        ...slot,
+        status: slot.status,
+      })),
+    }));
+
   };
 
   // =============== NAVIGATION ===============
@@ -272,14 +284,96 @@ export default function Dashboard() {
                     style={styles.textField}
                     placeholder="Add details"
                 />
+
+                {/* Faculty can mark timeslots as completed*/}
+                {studentRole === "faculty" && selectedSlot.status !== "completed" && (
+                    <button
+                           style={styles.bookButton}
+                            onClick={async () => {
+                              await fetch("/api/completeSlot", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  date: selectedSlot.date,
+                                  time: selectedSlot.time,
+                                  role: studentRole,
+                                }),
+                              });
+                              setSelectedSlot({ ...selectedSlot, status: "completed" });
+                              setTimeSlots(prev =>
+                                  prev.map(day =>
+                                      day.date === selectedSlot.date
+                                          ? {
+                                            ...day,
+                                            slots: day.slots.map(slot =>
+                                                slot.time === selectedSlot.time
+                                                    ? { ...slot, status: "completed" }
+                                                    : slot
+                                            ),
+                                          }
+                                          : day
+                                  )
+                              );
+                            }}
+                          >
+                            Mark Completed
+                          </button>
+                        )}
+
+                      {/* Show completed notice */}
+                      {selectedSlot.status === "completed" && (
+                          <p style={{ color: "#007bff", marginTop: "10px" }}>
+                              ✅ This slot is completed.
+                            </p>
+                        )}
+
+                {/* Faculty undo-functionality to completion */}
+                {studentRole === "faculty" && selectedSlot.status === "completed" && (
+                    <button
+                      style={styles.bookButton}
+                      onClick={async () => {
+                        await fetch("/api/completeSlot", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            date: selectedSlot.date,
+                            time: selectedSlot.time,
+                            role: studentRole,
+                          }),
+                        });
+                        setSelectedSlot({...selectedSlot, status: "completed" });
+                        setTimeSlots(prev =>
+                            prev.map(day =>
+                                day.date === selectedSlot.date
+                                ? {
+                                    ...day,
+                                  slots: day.slots.map(slot =>
+                                  slot.time === selectedSlot.time
+                                      ? { ...slot, status: "scheduled" }
+                                      : slot
+                                  ),
+                                }
+                                : day
+                            )
+                        );
+                      }}
+                      >
+                      Undo Completed
+                    </button>
+                )}
+
                 {selectedSlot.bookedBy ? (
-                    <button style={styles.bookButton} onClick={handleUnbookSlot}>
-                      Unbook
-                    </button>
+                    selectedSlot.status !== "completed" && (
+                        <button style={styles.bookButton} onClick={handleUnbookSlot}>
+                          Unbook
+                        </button>
+                    )
                 ) : (
-                    <button style={styles.bookButton} onClick={handleBooking}>
-                      Book
-                    </button>
+                    selectedSlot.status !== "completed" && (
+                        <button style={styles.bookButton} onClick={handleBooking}>
+                          Book
+                        </button>
+                    )
                 )}
                 <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
                   Close
@@ -368,9 +462,19 @@ export default function Dashboard() {
                                     key={index}
                                     style={{
                                       ...styles.timeSlot,
-                                      backgroundColor: slot.bookedBy ? "#ffcccc" : "#ccffcc", // red if booked, green if available
+                                      backgroundColor:
+                                          slot.status === "completed"
+                                            ? "#e0e0e0"
+                                            : slot.bookedBy
+                                            ? "#ffcccc"
+                                            : "#ccffcc", // red if booked, green if available
+                                      opacity: slot.status === "completed" ? 0.6 : 1,
+                                      cursor: "pointer",
                                     }}
-                                    onClick={() => handleTimeSlotClick(slot)}
+                                    onClick={() => handleTimeSlotClick(slot) }
+                                    title={
+                                      slot.status === "completed" ? "Completed" : ""
+                                    }
                                 >
                                   <div style={styles.time}>{slot.time}</div>
                                   <div style={styles.content}>{slot.content}</div>
