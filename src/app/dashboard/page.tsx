@@ -24,7 +24,7 @@ export default function Dashboard() {
   const [timeSlots, setTimeSlots] = useState<{ date: string; slots: TimeSlot[] }[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [slotDetails, setSlotDetails] = useState<string>("");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); 
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const [availabilityForm, setAvailabilityForm] = useState({
     title: "",
