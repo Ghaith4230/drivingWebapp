@@ -3,7 +3,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    height: "100vh",
+    height: "200vh",
     fontFamily: "Arial",
     backgroundColor: "#f8f9fa",
     position: "relative",
