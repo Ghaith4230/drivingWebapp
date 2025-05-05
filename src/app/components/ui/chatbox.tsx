@@ -20,9 +20,9 @@ type ChatHistory = {
 let socket: Socket | null = null
 
 export default function ChatPage() {
-  const [username, setUsername] = useState('5074')
+  const [username, setUsername] = useState('')
   const [allUsers, setAllUsers] = useState<string[]>([])
-  const [selectedUser, setSelectedUser] = useState<string | null>("5074")
+  const [selectedUser, setSelectedUser] = useState<string | null>("")
   const [chatHistory, setChatHistory] = useState<ChatHistory>({})
   const [input, setInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -39,16 +39,16 @@ export default function ChatPage() {
         const userId = userResult.message
         setUsername(userId)
   
-        const contact = await getContacts(parseInt(username))
+        const contact = await getContacts(parseInt(userId))
 
         for (const c of contact) {
           const messages = await getMessages(c.from, c.to)
 
           for (const msg of messages) {
-            const otherUser = "" + msg.from === username ? msg.to : msg.from
+          
             setChatHistory((prev) => ({
               ...prev,
-              [otherUser]: [...(prev[otherUser] || []), msg],
+              [c.to]: [...(prev[c.to] || []), msg],
             }))
           }
         }
@@ -214,7 +214,7 @@ export default function ChatPage() {
               </div>
               <input
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => console.log(chatHistory)}
                 placeholder="Type your message"
                 onKeyDown={(e) => e.key === 'Enter' && send()}
                 style={ChatStyles.chatInput}
