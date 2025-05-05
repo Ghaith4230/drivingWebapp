@@ -4,19 +4,30 @@ import { getTimeSlotsByDate } from "@/db/select";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { current } = await body;
+    const { current, userId } = body; // Extract current dates and userId from the request body
 
     const allSlots = [];
+
+    // Iterate over each date in the 'current' array
     for (const date of current) {
+      // Get the time slots for the given date
       const slots = await getTimeSlotsByDate(date.toString());
-      const cleanedSlots = slots.map(({ date, time, endTime, location, content, bookedBy }) => ({ date, time, endTime, location, content, bookedBy }));
+
+      // Filter the slots to only include those with the bookedBy being the same as userId or null
+      const filteredSlots = slots.filter(slot => slot.bookedBy === userId || slot.bookedBy === null);
+
+      console.log("Filtered Slots:", filteredSlots); // Log the filtered slots for debugging
+      const cleanedSlots = filteredSlots.map(({ date, time, endTime, location, content, bookedBy }) => ({
+        date, time, endTime, location, content, bookedBy
+      }));
+
       allSlots.push({ date, slots: cleanedSlots });
     }
-    const response = allSlots.map(({ date, slots }) => ({ date, slots }));
-    return NextResponse.json(response, { status: 200 });
+
+    // Return the response with the filtered slots
+    return NextResponse.json(allSlots, { status: 200 });
   } catch (error) {
     console.error("Error fetching slots:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-

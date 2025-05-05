@@ -81,11 +81,23 @@ export default function Dashboard() {
   };
 
   const fetchTimeSlots = async (start: Date, end: Date) => {
+
+    const userResponse = await fetch('/api/userId', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+      const userResult = await userResponse.json();
+      const userId = userResult.message;
+
+      console.log("User ID:", userId); // Debugging line
+
     const response = await fetch("/api/fetchSlots", { 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         current: getDaysOfWeek(currentDate).map((day) => format(day, "yyyy-MM-dd")),
+        userId: userId,
       }),
     });
     const array = await response.json();
