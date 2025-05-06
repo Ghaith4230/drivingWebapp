@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
       const slots = await getTimeSlotsByDate(date.toString());
 
       // Filter the slots to only include those with the bookedBy being the same as userId or null
-      const filteredSlots = slots.filter(slot => slot.bookedBy === userId || slot.bookedBy === null);
+      const filteredSlots = slots.filter(slot => slot.bookedBy === userId || slot.bookedBy === 0);
 
-      console.log("Filtered Slots:", filteredSlots); // Log the filtered slots for debugging
+      console.log("Filtered Slots:", filteredSlots); 
       const cleanedSlots = filteredSlots.map(({ date, time, endTime, location, content, bookedBy }) => ({
         date, time, endTime, location, content, bookedBy
       }));

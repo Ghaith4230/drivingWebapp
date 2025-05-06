@@ -90,7 +90,7 @@ export default function Dashboard() {
       const userResult = await userResponse.json();
       const userId = userResult.message;
 
-      console.log("User ID:", userId); // Debugging line
+     
 
     const response = await fetch("/api/fetchSlots", { 
       method: "POST",
@@ -158,7 +158,6 @@ export default function Dashboard() {
       // Clear selection after booking to avoid stale state
       setSelectedSlot(null);
       setCurrentDay(null);
-      window.location.reload();
     }
   }
 
@@ -284,15 +283,19 @@ export default function Dashboard() {
                     style={styles.textField}
                     placeholder="Add details"
                 />
-                {selectedSlot.bookedBy ? (
-                    <button style={styles.bookButton} onClick={handleUnbookSlot}>
-                      Unbook
-                    </button>
-                ) : (
-                    <button style={styles.bookButton} onClick={handleBooking}>
-                      Book
-                    </button>
-                )}
+           {studentRole !== 'faculty' && (
+            <div>
+              {selectedSlot.bookedBy ? (
+                <button style={styles.bookButton} onClick={handleUnbookSlot}>
+                  Unbook
+                </button>
+              ) : (
+                <button style={styles.bookButton} onClick={handleBooking}>
+                  Book
+                </button>
+              )}
+             
+            </div>)}
                 <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
                   Close
                 </button>

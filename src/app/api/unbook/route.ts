@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
         const result = await db
             .update(postsTable)
-            .set({ bookedBy: null })
+            .set({ bookedBy: 0 })
             .where(
                 sql`${postsTable.date} = ${date} AND ${postsTable.time} = ${time} AND ${postsTable.bookedBy} = ${userId}`
             );
