@@ -81,8 +81,9 @@ export async function getTimeSlotsByDate(date: string) {
     content: postsTable.content,
     bookedBy: postsTable.bookedBy,
     status: postsTable.status,
+        feedback: feedbackTable.feedback,
   })
-      .from(postsTable).where(eq(postsTable.date, date)).all();
+      .from(postsTable).leftJoin(feedbackTable, and(eq(feedbackTable.date, postsTable.date), eq(feedbackTable.time, postsTable.time),)).where(eq(postsTable.date, date)).all();
   //return await db.select().from(postsTable).where(eq(postsTable.date, date));
 }
 

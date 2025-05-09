@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     for (const date of current) {
       // Get the time slots for the given date
       const slots = await getTimeSlotsByDate(date.toString());
-      const cleanedSlots = slots.map(({ date, time, endTime, location, content, bookedBy, status }) => ({ date, time, endTime, location, content, bookedBy, status }));
+      const cleanedSlots = slots.map(({ date, time, endTime, location, content, bookedBy, status, feedback }) => ({ date, time, endTime, location, content, bookedBy, status, feedback }));
       allSlots.push({ date, slots: cleanedSlots });
     }
     const response = allSlots.map(({ date, slots }) => ({ date, slots }));

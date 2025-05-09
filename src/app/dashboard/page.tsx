@@ -11,8 +11,9 @@ type TimeSlot = {
   endTime: string;
   location: string;
   content: string;
-  bookedBy: string;
+  bookedBy: number | null;
   status: 'scheduled' | 'booked' | 'completed';
+  feedback?: string | null;
 };
 
 type datee = {
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [slotDetails, setSlotDetails] = useState<string>("");
   const [studentRole, setStudentRole] = useState<string>("");
+  const [slotFeedback, setSlotFeedback] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const [availabilityForm, setAvailabilityForm] = useState({
@@ -39,9 +41,19 @@ export default function Dashboard() {
     bookedBy: "",
   });
 
+  const [userId, setUserId] = useState<number | null>(null);
+
   useEffect(() => {
+
+    fetch("/api/auth", { method: "POST" })
+        .then((r) => r.json())
+        .then(({ message }) => {
+          const id = Number(message);
+          setUserId(isNaN(id) ? null : id);
+        });
+
     fetchTimeSlotsForWeek(currentDate);
-  
+
     const fetchData = async () => {
       const userResponse = await fetch('/api/userId', {
         method: 'POST',
@@ -337,6 +349,54 @@ export default function Dashboard() {
                               ✅ This slot is completed.
                             </p>
                         )}
+
+                {/* 🎓 Feedback box for faculty */}
+                {studentRole === "faculty" && selectedSlot.status === "completed" && (
+                    <div style={{ marginTop: "20px" }}>
+                      <h3>Send Feedback</h3>
+                      <textarea
+                          value={slotFeedback}
+                          onChange={(e) => setSlotFeedback(e.target.value)}
+                          placeholder="Enter performance feedback…"
+                          style={{ width: "100%", height: "80px", marginBottom: "8px" }}
+                      />
+                      <button
+                          style={styles.bookButton}
+                          onClick={async () => {
+                            const res = await fetch("/api/submitFeedback", {
+                              method: "POST",
+                              credentials: "include",           // ← send your session cookie
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                date: selectedSlot.date,
+                                time: selectedSlot.time,
+                                feedback: slotFeedback,
+                              }),
+                            });
+                            if (res.ok) {
+                              alert("✅ Feedback sent!");
+                              setSlotFeedback("");
+                            } else {
+                              alert("❌ Failed to send feedback.");
+                            }
+                          }}
+                      >
+                        Send Feedback
+                      </button>
+                    </div>
+                )}
+
+                {/* 🧑‍🎓 Student view: show feedback if they booked this slot */}
+                {userId !== null &&
+                    selectedSlot?.bookedBy === userId &&
+                    selectedSlot.feedback && (
+                        <div style={{ marginTop: 20, padding: 10, background: "#f0f0f0" }}>
+                          <h3>Your Feedback</h3>
+                          <p style={{ whiteSpace: "pre-wrap" }}>
+                            {selectedSlot.feedback}
+                          </p>
+                        </div>
+                    )}
 
                 {/* Faculty undo-functionality to completion */}
                 {studentRole === "faculty" && selectedSlot.status === "completed" && (

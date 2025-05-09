@@ -78,6 +78,20 @@
       "when": 1746451315800,
       "tag": "0010_warm_dragon_lord",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1746806665451,
+      "tag": "0011_square_mandarin",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1746808411901,
+      "tag": "0012_lean_bulldozer",
+      "breakpoints": true
     }
   ]
 }
