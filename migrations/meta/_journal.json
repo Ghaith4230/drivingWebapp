@@ -71,6 +71,13 @@
       "when": 1745181236258,
       "tag": "0009_kind_night_nurse",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1746451315800,
+      "tag": "0010_warm_dragon_lord",
+      "breakpoints": true
     }
   ]
 }
