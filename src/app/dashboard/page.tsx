@@ -45,12 +45,17 @@ export default function Dashboard() {
 
   useEffect(() => {
 
-    fetch("/api/auth", { method: "POST" })
-        .then((r) => r.json())
-        .then(({ message }) => {
-          const id = Number(message);
-          setUserId(isNaN(id) ? null : id);
-        });
+        fetch("/api/userId", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+        })
+            .then((r) => r.json())
+            .then(({ message }) => {
+      const id = Number(message);
+      setUserId(isNaN(id) ? null : id);
+      })
+    .catch(() => setUserId(null));
 
     fetchTimeSlotsForWeek(currentDate);
 
@@ -365,7 +370,7 @@ export default function Dashboard() {
                           onClick={async () => {
                             const res = await fetch("/api/submitFeedback", {
                               method: "POST",
-                              credentials: "include",           // ← send your session cookie
+                              credentials: "include",
                               headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({
                                 date: selectedSlot.date,
@@ -374,6 +379,25 @@ export default function Dashboard() {
                               }),
                             });
                             if (res.ok) {
+                              // 1) update selectedSlot in-place
+                              setSelectedSlot(prev =>
+                                  prev ? { ...prev, feedback: slotFeedback } : prev
+                              );
+                              // 2) propagate that change into the full calendar state
+                              setTimeSlots(days =>
+                                  days.map(d =>
+                                      d.date === selectedSlot.date
+                                          ? {
+                                            ...d,
+                                            slots: d.slots.map(s =>
+                                                s.time === selectedSlot.time
+                                                    ? { ...s, feedback: slotFeedback }
+                                                    : s
+                                            ),
+                                          }
+                                          : d
+                                  )
+                              );
                               alert("✅ Feedback sent!");
                               setSlotFeedback("");
                             } else {
@@ -388,8 +412,8 @@ export default function Dashboard() {
 
                 {/* 🧑‍🎓 Student view: show feedback if they booked this slot */}
                 {userId !== null &&
-                    selectedSlot?.bookedBy === userId &&
-                    selectedSlot.feedback && (
+                    selectedSlot.bookedBy === userId &&
+                    selectedSlot.feedback != null && (
                         <div style={{ marginTop: 20, padding: 10, background: "#f0f0f0" }}>
                           <h3>Your Feedback</h3>
                           <p style={{ whiteSpace: "pre-wrap" }}>
