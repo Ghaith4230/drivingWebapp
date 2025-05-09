@@ -21,33 +21,18 @@ export async function POST(req: NextRequest) {
         );
     }
 
-    // 1) attempt the update
-    const result = await db
+    const updateResult = await db
         .update(postsTable)
         .set({ status: "scheduled" })
-        .where(
-            and(
-                eq(postsTable.date, date),
-                eq(postsTable.time, time)
-            )
-        );
-    console.log("[uncompleteSlot] update result:", result);
+        .where(and(eq(postsTable.date, date), eq(postsTable.time, time)));
+    console.log("[uncomplete] updateResult:", updateResult);
 
-    // 2) fetch back that single row
     const [row] = await db
         .select({ status: postsTable.status })
         .from(postsTable)
-        .where(
-            and(
-                eq(postsTable.date, date),
-                eq(postsTable.time, time)
-            )
-        )
+        .where(and(eq(postsTable.date, date), eq(postsTable.time, time)))
         .all();
-    console.log("[uncompleteSlot] row after update:", row);
+    console.log("[uncomplete] row after:", row);
 
-    await db.update(postsTable).set({ status: "scheduled" }).where(and(eq(postsTable.date, date), eq(postsTable.time, time)));
-    //await updateTimeSlot(date, time, { status: "scheduled" });
-
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, statusNow: row?.status });
 }
