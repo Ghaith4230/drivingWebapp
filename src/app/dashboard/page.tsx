@@ -7,6 +7,7 @@ import { getUserById } from "@/db/select";
 import {headers} from "next/headers";
 import BackgroundLayout from "@/app/components/BackgroundLayout";
 import {styles} from './styles';
+import Link from "next/link";
 type TimeSlot = {
   date: string;
   time: string;   // StartTime
@@ -230,54 +231,41 @@ export default function Dashboard() {
 
   // ================== JSX ======================
   return (
-      <BackgroundLayout> {/* Wrap your whole layout inside BackgroundLayout */}
-        <div
-            onClick={() => {
-              if (menuOpen) setMenuOpen(!menuOpen);
-            }}
-            style={styles.container}
-        >
-          <div style={styles.menuContainer}>is
-            <div
-                style={styles.logo}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(!menuOpen);
-                }}
-            >
-              ⚪⚪
-            </div>
-            {menuOpen && (
-                <div style={styles.dropdownMenu}>
-                  <button style={styles.menuItem} onClick={(e) => handleProfile(e)}>
-                    Your Profile
-                  </button>
-                  <button style={styles.menuItem}>Settings</button>
-                  <button onClick={handleLogout} style={styles.menuItem}>
-                    Logout
-                  </button>
-                </div>
-            )}
+      <BackgroundLayout>
+        {/* Top Navigation Bar */}
+        <div className="absolute top-0 left-0 w-full px-8 py-4 flex justify-between items-center z-10 text-white">
+          {/* Left-side Links */}
+          <div className="flex gap-8">
+            <Link href="/#our-team" className="hover:underline underline-offset-4">Our Team</Link>
+            <Link href="/#packages" className="hover:underline underline-offset-4">Packages</Link>
+            <Link href="/#news" className="hover:underline underline-offset-4">News</Link>
           </div>
 
+          {/* Right-side Buttons */}
+          <div className="flex gap-8">
+            <button onClick={handleProfile} className="hover:underline underline-offset-4">Profile</button>
+            <Link href="/#settings" className="hover:underline underline-offset-4">Settings</Link>
+            <button onClick={handleLogout} className="hover:underline underline-offset-4">Logout</button>
+          </div>
+        </div>
+
+        <div style={styles.container}>
           <h1 style={styles.heading}>Welcome to Your Dashboard</h1>
 
-          {/* Manage Availability & Clear Calendar */}
           {studentRole === "faculty" && (
-              <div style={{marginBottom: "20px"}}>
+              <div style={{ marginBottom: "20px" }}>
                 <button
                     onClick={() => setAvailabilityOpen(true)}
-                    style={{...styles.bookButton, marginRight: "10px"}}
+                    style={{ ...styles.bookButton, marginRight: "10px" }}
                 >
                   Manage Availability
                 </button>
-
                 <button
                     style={styles.closeButton}
                     onClick={async () => {
                       const confirmClear = confirm("Are you sure you want to delete all your slots?");
                       if (!confirmClear) return;
-                      const response = await fetch("/api/clearSlots", {method: "POST"});
+                      const response = await fetch("/api/clearSlots", { method: "POST" });
                       if (!response.ok) {
                         alert("Failed to clear slots");
                         return;
@@ -291,7 +279,6 @@ export default function Dashboard() {
           )}
 
           <div style={styles.mainContent}>
-            {/* =========== SIDEBAR FOR SELECTED SLOT =========== */}
             {selectedSlot && (
                 <div style={styles.sidebar}>
                   <h2>Selected Time Slot</h2>
@@ -308,21 +295,20 @@ export default function Dashboard() {
                       placeholder="Add details"
                   />
 
-                  {/* Faculty can mark timeslots as completed */}
                   {studentRole === "faculty" && selectedSlot.status !== "completed" && (
                       <button
                           style={styles.bookButton}
                           onClick={async () => {
                             await fetch("/api/completeSlot", {
                               method: "POST",
-                              headers: {"Content-Type": "application/json"},
+                              headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({
                                 date: selectedSlot.date,
                                 time: selectedSlot.time,
                                 role: studentRole,
                               }),
                             });
-                            setSelectedSlot({...selectedSlot, status: "completed"});
+                            setSelectedSlot({ ...selectedSlot, status: "completed" });
                             setTimeSlots((prev) =>
                                 prev.map((day) =>
                                     day.date === selectedSlot.date
@@ -330,7 +316,7 @@ export default function Dashboard() {
                                           ...day,
                                           slots: day.slots.map((slot) =>
                                               slot.time === selectedSlot.time
-                                                  ? {...slot, status: "completed"}
+                                                  ? { ...slot, status: "completed" }
                                                   : slot
                                           ),
                                         }
@@ -343,28 +329,26 @@ export default function Dashboard() {
                       </button>
                   )}
 
-                  {/* Show completed notice */}
                   {selectedSlot.status === "completed" && (
-                      <p style={{color: "#007bff", marginTop: "10px"}}>
+                      <p style={{ color: "#007bff", marginTop: "10px" }}>
                         ✅ This slot is completed.
                       </p>
                   )}
 
-                  {/* Faculty undo-functionality to completion */}
                   {studentRole === "faculty" && selectedSlot.status === "completed" && (
                       <button
                           style={styles.bookButton}
                           onClick={async () => {
                             await fetch("/api/completeSlot", {
                               method: "POST",
-                              headers: {"Content-Type": "application/json"},
+                              headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({
                                 date: selectedSlot.date,
                                 time: selectedSlot.time,
                                 role: studentRole,
                               }),
                             });
-                            setSelectedSlot({...selectedSlot, status: "completed"});
+                            setSelectedSlot({ ...selectedSlot, status: "scheduled" });
                             setTimeSlots((prev) =>
                                 prev.map((day) =>
                                     day.date === selectedSlot.date
@@ -372,7 +356,7 @@ export default function Dashboard() {
                                           ...day,
                                           slots: day.slots.map((slot) =>
                                               slot.time === selectedSlot.time
-                                                  ? {...slot, status: "scheduled"}
+                                                  ? { ...slot, status: "scheduled" }
                                                   : slot
                                           ),
                                         }
@@ -398,57 +382,71 @@ export default function Dashboard() {
                           </button>
                       )
                   )}
-                  <button style={styles.closeButton} onClick={() => setSelectedSlot(null)}>
+
+                  <button
+                      style={styles.closeButton}
+                      onClick={() => setSelectedSlot(null)}
+                  >
                     Close
                   </button>
                 </div>
             )}
 
-            {/* =========== AVAILABILITY FORM =========== */}
             {availabilityOpen && (
                 <div style={styles.sidebar}>
                   <h2>Manage Availability</h2>
-
                   <input
                       type="text"
                       placeholder="Title"
                       value={availabilityForm.title}
-                      onChange={(e) => setAvailabilityForm({...availabilityForm, title: e.target.value})}
+                      onChange={(e) =>
+                          setAvailabilityForm({ ...availabilityForm, title: e.target.value })
+                      }
                       style={styles.textField}
                   />
                   <input
                       type="date"
                       value={availabilityForm.date}
-                      onChange={(e) => setAvailabilityForm({...availabilityForm, date: e.target.value})}
+                      onChange={(e) =>
+                          setAvailabilityForm({ ...availabilityForm, date: e.target.value })
+                      }
                       style={styles.textField}
                   />
                   <input
                       type="time"
                       placeholder="Start Time"
                       value={availabilityForm.startTime}
-                      onChange={(e) => setAvailabilityForm({...availabilityForm, startTime: e.target.value})}
+                      onChange={(e) =>
+                          setAvailabilityForm({ ...availabilityForm, startTime: e.target.value })
+                      }
                       style={styles.textField}
                   />
                   <input
                       type="time"
                       placeholder="End Time"
                       value={availabilityForm.endTime}
-                      onChange={(e) => setAvailabilityForm({...availabilityForm, endTime: e.target.value})}
+                      onChange={(e) =>
+                          setAvailabilityForm({ ...availabilityForm, endTime: e.target.value })
+                      }
                       style={styles.textField}
                   />
                   <input
                       type="text"
                       placeholder="Location"
                       value={availabilityForm.location}
-                      onChange={(e) => setAvailabilityForm({...availabilityForm, location: e.target.value})}
+                      onChange={(e) =>
+                          setAvailabilityForm({ ...availabilityForm, location: e.target.value })
+                      }
                       style={styles.textField}
                   />
                   <textarea
                       placeholder="Description (max 150 chars)"
                       maxLength={150}
                       value={availabilityForm.description}
-                      onChange={(e) => setAvailabilityForm({...availabilityForm, description: e.target.value})}
-                      style={{...styles.textField, height: "60px", resize: "none"}}
+                      onChange={(e) =>
+                          setAvailabilityForm({ ...availabilityForm, description: e.target.value })
+                      }
+                      style={{ ...styles.textField, height: "60px", resize: "none" }}
                   />
                   <button style={styles.bookButton} onClick={handleAvailabilitySubmit}>
                     Submit
@@ -456,27 +454,37 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* =========== CALENDAR =========== */}
             <div style={styles.calendarContainer}>
               <div style={styles.headerRow}>
-                <button onClick={navigateToPreviousWeek} style={styles.navButton}>{"<"}</button>
-                <h2 style={styles.monthHeader}>{`Week of ${format(currentDate, "MMMM dd, yyyy")}`}</h2>
-                <button onClick={navigateToNextWeek} style={styles.navButton}>{">"}</button>
+                <button onClick={navigateToPreviousWeek} style={styles.navButton}>
+                  {"<"}
+                </button>
+                <h2 style={styles.monthHeader}>
+                  {`Week of ${format(currentDate, "MMMM dd, yyyy")}`}
+                </h2>
+                <button onClick={navigateToNextWeek} style={styles.navButton}>
+                  {">"}
+                </button>
               </div>
 
               <div style={styles.calendarGrid}>
                 {getDaysOfWeek(currentDate).map((day) => {
                   const dayFormatted = getFormattedDate(day);
-                  // DB data for this day
-                  const daySlots = timeSlots.find((slot) => slot.date === dayFormatted)?.slots || [];
+                  const daySlots =
+                      timeSlots.find((slot) => slot.date === dayFormatted)?.slots || [];
 
                   return (
                       <div key={dayFormatted} style={styles.dayContainer}>
                         <div style={styles.day}>{format(day, "d")}</div>
-
                         <div style={styles.timeSlotColumn}>
                           {daySlots.length === 0 ? (
-                              <div style={{marginTop: "10px", fontSize: "0.9rem", color: "#999"}}>
+                              <div
+                                  style={{
+                                    marginTop: "10px",
+                                    fontSize: "0.9rem",
+                                    color: "#999",
+                                  }}
+                              >
                                 No slots
                               </div>
                           ) : (
@@ -490,12 +498,14 @@ export default function Dashboard() {
                                                 ? "#e0e0e0"
                                                 : slot.bookedBy
                                                     ? "#ffcccc"
-                                                    : "#ccffcc", // red if booked, green if available
+                                                    : "#ccffcc",
                                         opacity: slot.status === "completed" ? 0.6 : 1,
                                         cursor: "pointer",
                                       }}
                                       onClick={() => handleTimeSlotClick(slot)}
-                                      title={slot.status === "completed" ? "Completed" : ""}
+                                      title={
+                                        slot.status === "completed" ? "Completed" : ""
+                                      }
                                   >
                                     <div style={styles.time}>{slot.time}</div>
                                     <div style={styles.content}>{slot.content}</div>
@@ -509,10 +519,9 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <ChatPage/>
 
-          {/* Optional: Add a footer or any other component here */}
+          <ChatPage />
         </div>
-      </BackgroundLayout> // Close the BackgroundLayout here
+      </BackgroundLayout>
   );
 }
