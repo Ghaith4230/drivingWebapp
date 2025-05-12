@@ -1,9 +1,8 @@
-// tests/api/lessonBooking.test.ts
 import { POST } from './route'; // Adjust path if necessary
 import { NextResponse } from 'next/server';
 import { decrypt } from '@/app/lib/session';
 import { getBookedLessonsByUserId } from '@/db/select';
-import {cookies} from "next/headers";
+import { cookies } from 'next/headers';
 
 // Mock dependencies
 jest.mock('@/app/lib/session', () => ({
@@ -47,10 +46,10 @@ describe('POST /api/lessons', () => {
     });
 
     it('should return 401 if session is invalid', async () => {
-        // Mock the session decryption to return null userId
+        // Mock the session decryption to return null userId (invalid session)
         (decrypt as jest.Mock).mockResolvedValue(null);
 
-        // Mock the cookie
+        // Mock the cookie to simulate invalid session
         (cookies as jest.Mock).mockReturnValue({
             get: jest.fn().mockReturnValue({ value: 'invalid-session-cookie' }),
         });
@@ -58,7 +57,7 @@ describe('POST /api/lessons', () => {
         const req = { json: jest.fn().mockResolvedValue({}) } as unknown as Request;
         const response = await POST(req);
 
-        // Check if the response is Unauthorized
+        // Check if the response is Unauthorized (401)
         expect(response.status).toBe(401);
         expect(await response.json()).toEqual({ message: "Not authorized" });
     });
@@ -67,7 +66,7 @@ describe('POST /api/lessons', () => {
         // Mock the session decryption to return a valid userId
         (decrypt as jest.Mock).mockResolvedValue({ userId: 1 });
 
-        // Mock the cookie
+        // Mock the cookie to simulate valid session
         (cookies as jest.Mock).mockReturnValue({
             get: jest.fn().mockReturnValue({ value: 'valid-session-cookie' }),
         });
@@ -78,7 +77,7 @@ describe('POST /api/lessons', () => {
         const req = { json: jest.fn().mockResolvedValue({}) } as unknown as Request;
         const response = await POST(req);
 
-        // Check if the response is a server error
+        // Check if the response is a server error (500)
         expect(response.status).toBe(500);
         expect(await response.json()).toEqual({ message: "Internal Server Error" });
     });
