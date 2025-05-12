@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "typeRoots": ["node_modules/@types", "src/types"],
+    "types": ["jest"],  // Add this line to include Jest types
     "lib": [
       "dom",
       "dom.iterable",
@@ -16,7 +17,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve", // Fixed JSX setting to work with React 17+ and Next.js
+    "jsx": "preserve",
     "incremental": true,
     "plugins": [
       {
