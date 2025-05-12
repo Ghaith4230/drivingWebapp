@@ -56,6 +56,7 @@ describe('POST /clear-slots', () => {
         expect(response.status).toBe(401);  // Unauthorized if not authenticated
     });
 
+    //delete test
     it('deletes user slots and returns success', async () => {
         const mockUserId = 123;
         // Mock session with user ID
