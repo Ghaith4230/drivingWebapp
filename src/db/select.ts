@@ -72,7 +72,18 @@ export async function getProfileByUserId(userId: number): Promise<{
 }
 
 export async function getTimeSlotsByDate(date: string) {
-  return await db.select().from(postsTable).where(eq(postsTable.date, date));
+  return db
+      .select({
+    date: postsTable.date,
+    time: postsTable.time,
+    endTime: postsTable.endTime,
+    location: postsTable.location,
+    content: postsTable.content,
+    bookedBy: postsTable.bookedBy,
+    status: postsTable.status,
+  })
+      .from(postsTable).where(eq(postsTable.date, date)).all();
+  //return await db.select().from(postsTable).where(eq(postsTable.date, date));
 }
 
 
