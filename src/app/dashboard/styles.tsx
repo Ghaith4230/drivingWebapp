@@ -5,7 +5,7 @@ export const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     height: "100vh",
     fontFamily: "Arial, sans-serif", // Ensure a fallback font
-    backgroundColor: "#f8f9fa", // Background color for the whole container
+    backgroundColor: "transparent", // Background color for the whole container
     position: "relative",
     padding: "20px", // Padding to ensure elements are not at the edges
   },
@@ -60,7 +60,7 @@ export const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "2rem",
     fontWeight: "bold",
     marginTop: "60px",
-    color: "#333", // Ensure text color is visible on background
+    color: "#fff", // Ensure text color is visible on background
   },
   logoutButton: {
     position: "absolute",
@@ -73,7 +73,6 @@ export const styles: { [key: string]: React.CSSProperties } = {
     cursor: "pointer",
     borderRadius: "5px", // Rounded corners for logout button
   },
-
   mainContent: {
     display: "flex",
     width: "90%",
