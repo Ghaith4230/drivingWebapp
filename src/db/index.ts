@@ -1,9 +1,17 @@
-import { config } from 'dotenv';
-import { drizzle } from 'drizzle-orm/libsql';
+// db/index.ts
+import mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/mysql2';
+import * as schema from './schema';
 
-config({ path: '.env' }); // or .env.local
+const pool = mysql.createPool({
+  host: 'localhost',
+  port: 3307,
+  user: 'root',         // ⬅️ your DB username
+  password: 'Hetisklaar4230', // ⬅️ your DB password
+  database: 'myappdb',    // ⬅️ your DB name
+});
 
-export const db = drizzle({ connection: {
-  url: process.env.TURSO_CONNECTION_URL || "libsql://training-ghaith4230.turso.io" ,
-  authToken: process.env.TURSO_AUTH_TOKEN || "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NDE2MzgzMjEsImlkIjoiOGRhYzQ0MjctMmMwNC00ZDA4LTlkNzYtYWM1NDJiN2E4Yzk3In0.gPrensioY4cDvk2buenXro6kf8klXLJiQnOxSIl8f73AkXAexzcoWhdeIyHrjOIrvz-BMwEI10gWR9OUaVeeBg",
-}});
+export const db = drizzle(pool, {
+  schema,
+  mode: 'default', // ⬅️ required!
+});

@@ -1,10 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, set } from "date-fns";
-import ChatPage from "../components/ui/chatbox";
-import { getUserById } from "@/db/select";
-import {headers} from "next/headers";
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval } from "date-fns";
+
 type TimeSlot = {
   date: string;
   time: string;   // StartTime
@@ -50,7 +48,16 @@ export default function Dashboard() {
       });
       const userResult = await userResponse.json();
       const userId = userResult.message;
-      const user = await getUserById(parseInt(userId));
+      const response = await fetch('/api/userByid', {
+      method: 'POST', // Change to POST
+      headers: {
+      'Content-Type': 'application/json', // Make sure the server knows you're sending JSON
+      },
+        body: JSON.stringify({ userId }) // Send userId as part of the body
+      });
+       const data = await response.json();
+       const user = data.user;
+      
   
       if (user?.role) {
        setStudentRole(user.role); // ← This sets it in state  
@@ -499,7 +506,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-        <ChatPage  />
 
         {/* Optional: Add a footer or any other component here */}
       </div>

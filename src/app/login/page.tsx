@@ -26,13 +26,7 @@ export default function LoginPage() {
 
     if (response.ok) {
       setStatusMessage("Login successful!");
-      const user = await getUserByEmail(email);
-
-      if (await getProfileByUserId(user.id) == null) {
-        redirect("/info");
-      } else {
-        redirect("/dashboard");
-      }
+      redirect("/dashboard");      // Redirect to the profile page after successful login
     } else {
       setStatusMessage(result.message); // Display the error message from the server
     }

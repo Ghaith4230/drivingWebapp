@@ -1,7 +1,6 @@
 "use client"; // This ensures the component is treated as a client-side component.
 
 import { useState } from "react";
-import { getUserByEmail } from "../../db/select";
 import { redirect } from "next/navigation";
 import Link from "next/link"; // Import Link for navigation
 import Image from "next/image"; // Import Image for the background
@@ -14,11 +13,18 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if the email already exists
-    if ((await getUserByEmail(email)) !== null) {
-      setStatusMessage("Error: Email already exists");
-      return;
-    }
+  const res = await fetch('/api/userEmail', {
+  method: 'POST',
+  body: JSON.stringify({ email }),
+  headers: { 'Content-Type': 'application/json' },
+});
+
+const { exists } = await res.json();
+
+if (exists) {
+  setStatusMessage("Error: Email already exists");
+  return;
+}
 
     // Send signup data to the API route
     const response = await fetch("/api/signup", {

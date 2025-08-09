@@ -1,93 +1,65 @@
-import { or,and, eq } from 'drizzle-orm';
+import { or, and, eq } from 'drizzle-orm';
 import { db } from './index';
-import { SelectUser, usersTable ,postsTable,Profile,SelectFeedBack,feedbackTable,contacts, messages } from './schema';
+import {
+  SelectUser, usersTable, postsTable, Profile,
+  SelectFeedBack, feedbackTable, contacts, messages
+} from './schema';
 
-// Get user by email - returns a single user object
-export async function getUserByEmail(email: SelectUser['email']): Promise<{
-  id: number;
-  email: string;
-  password: string;
-  verificationToken: string | null;
-  isVerified: boolean;
-  role: string;
-} | null> {
+
+// ✅ Get user by email
+export async function getUserByEmail(email: SelectUser['email']) {
   const users = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
 
-  // Return null if no user found, otherwise map to the correct format
-  if (users.length === 0) {
-    return null;
-  }
+  if (users.length === 0) return null;
 
   const user = users[0];
   return {
     ...user,
-    isVerified: Boolean(user.isVerified), // Ensure isVerified is a boolean
+    isVerified: Boolean(user.isVerified),
   };
 }
 
 
-export async function getUserById(id: SelectUser['id']): Promise<{
-  id: number;
-  email: string;
-  password: string;
-  verificationToken: string | null;
-  isVerified: boolean;
-  role: string;
-} | null> {
+// ✅ Get user by ID
+export async function getUserById(id: SelectUser['id']) {
   const users = await db.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
 
-  // Return null if no user found, otherwise map to the correct format
-  if (users.length === 0) {
-    return null;
-  }
+  if (users.length === 0) return null;
 
   const user = users[0];
   return {
     ...user,
-    isVerified: Boolean(user.isVerified), // Ensure isVerified is a boolean
+    isVerified: Boolean(user.isVerified),
   };
 }
 
-export async function getProfileByUserId(userId: number): Promise<{
-  userId: number;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  address: string;
-  country: string;
-  zipCode: string;
-  gender: string;
-} | null> {
+
+// ✅ Get profile by user ID
+export async function getProfileByUserId(userId: number) {
   const profiles = await db.select().from(Profile).where(eq(Profile.userId, userId)).limit(1);
 
-  // Return null if no profile found, otherwise map to the correct format
-  if (profiles.length === 0) {
-    return null;
-  }
-
-  const profile = profiles[0];
-  return {
-    ...profile,
-  };
+  return profiles.length > 0 ? profiles[0] : null;
 }
 
+
+// ✅ Get all timeslots by date
 export async function getTimeSlotsByDate(date: string) {
   return db
-      .select({
-    date: postsTable.date,
-    time: postsTable.time,
-    endTime: postsTable.endTime,
-    location: postsTable.location,
-    content: postsTable.content,
-    bookedBy: postsTable.bookedBy,
-    status: postsTable.status,
-  })
-      .from(postsTable).where(eq(postsTable.date, date)).all();
-  //return await db.select().from(postsTable).where(eq(postsTable.date, date));
+    .select({
+      date: postsTable.date,
+      time: postsTable.time,
+      endTime: postsTable.endTime,
+      location: postsTable.location,
+      content: postsTable.content,
+      bookedBy: postsTable.bookedBy,
+      status: postsTable.status,
+    })
+    .from(postsTable)
+    .where(eq(postsTable.date, date));
 }
 
 
-
+// ✅ Get a feedback timeslot by date and time
 export async function getTimeSlotByDateTime(
   date: SelectFeedBack['date'],
   time: SelectFeedBack['time']
@@ -102,25 +74,15 @@ export async function getTimeSlotByDateTime(
 }
 
 
-export async function getContacts(userId: number): Promise<{
-  from: number;
-  to: number;
-}[]> {
-  const profiles = await db
-    .select()
-    .from(contacts)
-    .where(eq(contacts.from, userId));
-
-  return profiles;
+// ✅ Get contacts (users this user has contacted)
+export async function getContacts(userId: number) {
+  return db.select().from(contacts).where(eq(contacts.from, userId));
 }
 
-export async function getMessages(from: number, to: number): Promise<{
-  from: number;
-  to: number;
-  message: string;
-  date: string;
-}[]> {
-  const messagesList = await db
+
+// ✅ Get messages between two users
+export async function getMessages(from: number, to: number) {
+  return db
     .select()
     .from(messages)
     .where(
@@ -129,17 +91,12 @@ export async function getMessages(from: number, to: number): Promise<{
         and(eq(messages.from, to), eq(messages.to, from))
       )
     );
-
-  return messagesList;
 }
-export async function getBookedLessonsByUserId(userId: number): Promise<{
-  date: string;
-  time: string;
-  endTime: string;
-  location: string;
-  content: string;
-}[]> {
-  const lessons = await db
+
+
+// ✅ Get all booked lessons by user ID
+export async function getBookedLessonsByUserId(userId: number) {
+  return db
     .select({
       date: postsTable.date,
       time: postsTable.time,
@@ -149,6 +106,4 @@ export async function getBookedLessonsByUserId(userId: number): Promise<{
     })
     .from(postsTable)
     .where(eq(postsTable.bookedBy, userId));
-
-  return lessons;
 }

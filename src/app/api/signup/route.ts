@@ -51,7 +51,7 @@ async function sendVerificationEmail(
     service: 'gmail',
     auth: {
       user: 'Geoffjeff08@gmail.com',
-      pass: 'aojk ynuk aswt pbjx',
+      pass: 'qyso drqq bbay dzna',
     },
     tls: {
       // accept self‑signed certificates

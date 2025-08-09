@@ -27,44 +27,67 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userResponse = await fetch('/api/userId', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        })
-        const userResult = await userResponse.json()
-        const userId = userResult.message
-        setUsername(userId)
-  
-        const contact = await getContacts(parseInt(userId))
 
-        for (const c of contact) {
-          const messages = await getMessages(c.from, c.to)
 
-          for (const msg of messages) {
-          
-            setChatHistory((prev) => ({
-              ...prev,
-              [c.to]: [...(prev[c.to] || []), msg],
-            }))
-          }
-        }
 
-        const filteredContacts = contact
-          .filter((c: { to: any }) => Number.isInteger(c.to))
-          .map((c: { to: number }) => c.to.toString());
-        setAllUsers(filteredContacts);
-        console.log('Contacts:', filteredContacts)
-      } catch (err) {
-        console.error('Error fetching data:', err)
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // Fetch the userId first
+      const userResponse = await fetch('/api/userId', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),  // Sending empty object as body
+      });
+
+      const userResult = await userResponse.json();
+      const userId = userResult.message;
+      setUsername(userId);  // Assuming you're using setState to store the username
+
+      // Fetch contacts and messages in a single API call
+      const response = await fetch('/api/getContactsMessages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),  // Passing the userId to the API
+      });
+
+      const result = await response.json();
+      const { contacts, messages } = result;
+
+      // Ensure that contacts and messages are valid
+      if (!contacts || !messages) {
+        throw new Error('Invalid data structure received from the API');
       }
+
+      // Process and filter contacts
+      const filteredContacts = contacts
+        .filter((c) => Number.isInteger(c.to))  // Only keep contacts with a valid `to` field
+        .map((c) => c.to.toString());  // Convert `to` field to a string
+      setAllUsers(filteredContacts);  // Store filtered contacts in the state
+
+      // Update the chat history state with messages for each contact
+      for (const contact of contacts) {
+        setChatHistory((prev) => ({
+          ...prev,
+          [contact.to]: [
+            ...(prev[contact.to] || []),  // Keep previous messages, if any
+            ...(messages[contact.to] || []),  // Add new messages for this contact
+          ],
+        }));
+      }
+
+      // Log the result for debugging purposes
+      console.log('Contacts:', filteredContacts);
+      console.log('Messages:', messages);
+      
+    } catch (err) {
+      console.error('Error fetching data:', err);
     }
-  
-    fetchData()
-  }, [])
+  };
+
+  fetchData();
+}, []);  // Empty dependency array ensures this runs only once when the component mounts
+
 
   useEffect(() => {
     socket = io()
