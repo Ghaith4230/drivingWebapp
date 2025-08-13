@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval } from "date-fns";
-
 type TimeSlot = {
   date: string;
   time: string;   // StartTime
@@ -48,6 +47,18 @@ export default function Dashboard() {
       });
       const userResult = await userResponse.json();
       const userId = userResult.message;
+
+         const response1 = await fetch('/api/getProfile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: userId }) // Replace with your dynamic userId
+        });
+
+        if(!response1.ok){
+          redirect('/info')
+        }
       const response = await fetch('/api/userByid', {
       method: 'POST', // Change to POST
       headers: {
@@ -66,6 +77,32 @@ export default function Dashboard() {
   
     fetchData();
   }, [currentDate]);
+
+    useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response1 = await fetch('/api/getProfile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: 'exampleUserId' }) // Replace with your dynamic userId
+        });
+
+        if (!response1.ok) {
+          throw new Error('Failed to fetch profile');
+        }
+
+        const data = await response1.json();
+        setProfile(data.profile); // Set the profile data
+      } catch (error) {
+        setError(error.message);  // Handle errors
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchProfile();  // Call the async function inside useEffect
+  }, []);
 
 
 
@@ -506,7 +543,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-
         {/* Optional: Add a footer or any other component here */}
       </div>
   );

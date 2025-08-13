@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import styles from "./styles";
 import Image from "next/image";
 import { getProfileByUserId } from "@/db/select";
-import { set } from "date-fns";
-import { get } from "http";
+
 
 export default function Profile() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,31 +23,47 @@ export default function Profile() {
     bookedBy: string;
   };
   
-  useEffect(() => {
-
+useEffect(() => {
+    // Define the async function inside useEffect
     const fetchProfile = async () => {
-      const response = await fetch("api/userId", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: "",
-      });
+      try {
+        // First fetch call to get userId
+        const response = await fetch('/api/userId', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({}), // Assuming you're sending an empty object as the body
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      console.log(result.message); 
+        // Second fetch call to get user profile data by userId
+        const response1 = await fetch('/api/getProfile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: result.message }) // Corrected body structure
+        });
 
-      const profile = await getProfileByUserId(result.message)
+        const data = await response1.json();
+       
+       
 
-     setProfileData(profile);
+        setProfileData(data);
 
-     const lessons = await fetchBookedLessons(result.message);
-     setBookedLessons(lessons);
+       
+
+        // Fetch booked lessons and update state
+        const lessons = await fetchBookedLessons(result.message);
+        setBookedLessons(lessons);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      }
     };
 
-    fetchProfile();
-    
+    fetchProfile(); // Calling the function inside useEffect
   }, []);
 
 
@@ -108,16 +123,16 @@ export default function Profile() {
   </div>
 
   <div style={styles.nameRow}>
-    <p style={styles.name}><strong>{profileData?.firstName || "Loading..."}</strong></p>
-    <p style={styles.name}><strong>{profileData?.lastName || "Loading..."}</strong></p>
+    <p style={styles.name}><strong>{profileData?.profile.firstName || "Loading..."}</strong></p>
+    <p style={styles.name}><strong>{profileData?.profile.lastName || "Loading..."}</strong></p>
   </div>
 
-  <p><strong>Email:</strong> {profileData?.email || "Loading..."}</p>
-  <p><strong>Phone Number:</strong> {profileData?.phoneNumber || "Loading..."}</p>
-  <p><strong>Address:</strong> {profileData?.address || "Loading..."}</p>
-  <p><strong>Country:</strong> {profileData?.country || "Loading..."}</p>
-  <p><strong>Zip Code:</strong> {profileData?.zipCode || "Loading..."}</p>
-  <p><strong>Gender:</strong> {profileData?.gender || "Loading..."}</p>
+  <p><strong>Email:</strong> {profileData?.profile.email || "Loading..."}</p>
+  <p><strong>Phone Number:</strong> {profileData?.profile.phoneNumber || "Loading..."}</p>
+  <p><strong>Address:</strong> {profileData?.profile.address || "Loading..."}</p>
+  <p><strong>Country:</strong> {profileData?.profile.country || "Loading..."}</p>
+  <p><strong>Zip Code:</strong> {profileData?.profile.zipCode || "Loading..."}</p>
+  <p><strong>Gender:</strong> {profileData?.profile.gender || "Loading..."}</p>
 </div>
 
 <h2 style={{ marginTop: "40px", fontSize: "1.5rem" }}>Your Booked Lessons</h2>

@@ -82,9 +82,21 @@ const FormPage = () => {
       console.error("Response does not contain a valid message field.");
     }
 
-    if (validate()) {
-      createProfile(formData);
-      redirect('/dashboard');
+    if(!validate()) return;
+
+      try {
+      const response = await fetch('/api/createProfile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      redirect('/dashboard')
+      
+    } catch (error) {
+      console.error('An error occurred:', error);
     }
   };
 

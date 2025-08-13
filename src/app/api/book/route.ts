@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUserByEmail } from '@/db/select';
 import { decrypt } from '@/app/lib/session';
-import { bookTime } from '@/db/queries/insert';
 import { cookies } from 'next/headers';
 import { updateTimeSlot } from "@/db/queries/insert";
 

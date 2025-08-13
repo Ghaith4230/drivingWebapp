@@ -3,7 +3,7 @@ import { getBookedLessonsByUserId } from "@/db/select";
 import { cookies } from "next/headers";
 import { decrypt } from "@/app/lib/session";
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     // Get session from cookie
     const cookie = (await cookies()).get("session")?.value;
