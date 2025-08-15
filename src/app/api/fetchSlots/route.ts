@@ -4,7 +4,7 @@ import { getTimeSlotsByDate } from "@/db/select";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { current, userId } = body; // Extract current dates and userId from the request body
+    const { current} = body; 
 
     const allSlots = [];
 

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { redirect } from "next/navigation";
-import { getProfileByUserId, getUserByEmail } from "@/db/select";
+
 import Image from "next/image";
 import Link from "next/link"; // Import Link for navigation
 

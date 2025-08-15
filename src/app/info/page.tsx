@@ -1,6 +1,5 @@
 "use client"; // This ensures the component is treated as a client-side component
 
-import { createProfile } from '@/db/queries/insert';
 import { redirect } from 'next/navigation';
 import React, { useState } from 'react';
 
@@ -92,6 +91,8 @@ const FormPage = () => {
         },
         body: JSON.stringify(formData),
       });
+
+      console.log("Response from createProfile API:", response);
       
       redirect('/dashboard')
       

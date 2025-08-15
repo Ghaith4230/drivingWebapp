@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { redirect } from "next/navigation";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval } from "date-fns";
+
 type TimeSlot = {
   date: string;
   time: string;   // StartTime
@@ -12,14 +13,12 @@ type TimeSlot = {
   status: 'scheduled' | 'booked' | 'completed';
 };
 
-type datee = {
-  date: string;
-  time: string;
-};
+
+
 
 export default function Dashboard() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentDay, setCurrentDay] = useState<datee | null>(null);
+
   const [timeSlots, setTimeSlots] = useState<{ date: string; slots: TimeSlot[] }[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [slotDetails, setSlotDetails] = useState<string>("");
@@ -36,9 +35,48 @@ export default function Dashboard() {
     bookedBy: "",
   });
 
+  const getDaysOfWeek = useCallback((date: Date) => {
+    const startOfWeekDate = startOfWeek(date, { weekStartsOn: 1 });
+    const endOfWeekDate = endOfWeek(date, { weekStartsOn: 1 });
+    return eachDayOfInterval({ start: startOfWeekDate, end: endOfWeekDate });
+  }, []);
+
+const fetchTimeSlots = useCallback(async () => {
+  const userResponse = await fetch('/api/userId', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  });
+  const userResult = await userResponse.json();
+  const userId = userResult.message;
+
+  const response = await fetch("/api/fetchSlots", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      current: getDaysOfWeek(currentDate).map((day) => format(day, "yyyy-MM-dd")),
+      userId,
+    }),
+  });
+
+  const array: { date: string; slots: TimeSlot[] }[] = await response.json();
+  return array.map((day) => ({
+    date: day.date,
+    slots: day.slots.map((slot) => ({
+      ...slot,
+      status: slot.status,
+    })),
+  }));
+}, [currentDate, getDaysOfWeek]);
+
+  const fetchTimeSlotsForWeek = useCallback(async () => {
+    const slots = await fetchTimeSlots();
+    setTimeSlots(slots);
+  }, [fetchTimeSlots]);
+
   useEffect(() => {
-    fetchTimeSlotsForWeek(currentDate);
-  
+    fetchTimeSlotsForWeek();
+
     const fetchData = async () => {
       const userResponse = await fetch('/api/userId', {
         method: 'POST',
@@ -48,37 +86,33 @@ export default function Dashboard() {
       const userResult = await userResponse.json();
       const userId = userResult.message;
 
-         const response1 = await fetch('/api/getProfile', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userId: userId }) // Replace with your dynamic userId
-        });
-
-        if(!response1.ok){
-          redirect('/info')
-        }
-      const response = await fetch('/api/userByid', {
-      method: 'POST', // Change to POST
-      headers: {
-      'Content-Type': 'application/json', // Make sure the server knows you're sending JSON
-      },
-        body: JSON.stringify({ userId }) // Send userId as part of the body
+      const response1 = await fetch('/api/getProfile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
       });
-       const data = await response.json();
-       const user = data.user;
-      
-  
+
+      if (!response1.ok) {
+        redirect('/info');
+      }
+
+      const response = await fetch('/api/userByid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await response.json();
+      const user = data.user;
+
       if (user?.role) {
-       setStudentRole(user.role); // ← This sets it in state  
+        setStudentRole(user.role);
       }
     };
-  
-    fetchData();
-  }, [currentDate]);
 
-    useEffect(() => {
+    fetchData();
+  }, [currentDate, fetchTimeSlotsForWeek]);
+
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response1 = await fetch('/api/getProfile', {
@@ -86,97 +120,30 @@ export default function Dashboard() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userId: 'exampleUserId' }) // Replace with your dynamic userId
+          body: JSON.stringify({ userId: 'exampleUserId' }),
         });
 
         if (!response1.ok) {
           throw new Error('Failed to fetch profile');
         }
 
-        const data = await response1.json();
-        setProfile(data.profile); // Set the profile data
+        await response1.json();
       } catch (error) {
-        setError(error.message);  // Handle errors
         console.error('Error fetching profile:', error);
       }
     };
 
-    fetchProfile();  // Call the async function inside useEffect
+    fetchProfile();
   }, []);
 
-
-
-
-  const handleProfile = async (e: React.FormEvent) => {
-    redirect("/profile");
-  }
-
-  // =============== LOGOUT HANDLER ===============
-  const handleLogout = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogout = async () => {
     await fetch("/api/deletesession", { method: "POST" });
     redirect("/login");
   };
 
-  // =============== FETCH TIME SLOTS ===============
-  const fetchTimeSlotsForWeek = async (date: Date) => {
-    const startOfWeekDate = startOfWeek(date, { weekStartsOn: 1 });
-    const endOfWeekDate = endOfWeek(date, { weekStartsOn: 1 });
-    const slots = await fetchTimeSlots(startOfWeekDate, endOfWeekDate);
-    setTimeSlots(slots);
-  };
-
-  const fetchTimeSlots = async (start: Date, end: Date) => {
-
-    const userResponse = await fetch('/api/userId', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    });
-      const userResult = await userResponse.json();
-      const userId = userResult.message;
-
-
-
-    const response = await fetch("/api/fetchSlots", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        current: getDaysOfWeek(currentDate).map((day) => format(day, "yyyy-MM-dd")),
-        userId: userId,
-      }),
-    });
-    const array = await response.json();
-    console.log("🏷️ fetchSlots response:", JSON.stringify(array, null, 2));
-
-    /* return array;*/
-    return array.map((day: any) => ({
-      date: day.date,
-      slots: day.slots.map((slot: any) => ({
-        ...slot,
-        status: slot.status,
-      })),
-    }));
-
-  };
-
-  // =============== NAVIGATION ===============
-  const navigateToNextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
-  const navigateToPreviousWeek = () => setCurrentDate(subWeeks(currentDate, 1));
-
-  // =============== HELPERS ===============
-  const getDaysOfWeek = (date: Date) => {
-    const startOfWeekDate = startOfWeek(date, { weekStartsOn: 1 });
-    const endOfWeekDate = endOfWeek(date, { weekStartsOn: 1 });
-    return eachDayOfInterval({ start: startOfWeekDate, end: endOfWeekDate });
-  };
-
   const getFormattedDate = (date: Date) => format(date, "yyyy-MM-dd");
 
-  // =============== SLOT HANDLERS ===============
   const handleTimeSlotClick = (slot: TimeSlot) => {
-    console.log("Clicked slot: " + slot);
-    setCurrentDay({ date: slot.date, time: slot.time });
     setSelectedSlot(slot);
     setSlotDetails(slot.content);
   };
@@ -185,18 +152,11 @@ export default function Dashboard() {
     setSlotDetails(e.target.value);
   };
 
-  // =============== BOOKING HANDLER ===============
   async function handleBooking(): Promise<void> {
     if (!selectedSlot) {
       console.error("No timeslot selected.");
       return;
     }
-
-    
-    const handleProfile: (e: React.FormEvent) => Promise<never> = async (e) => {
-  e.preventDefault();
-  redirect("/profile");
-};
 
     console.log("Booking slot:", JSON.stringify(selectedSlot));
 
@@ -211,9 +171,7 @@ export default function Dashboard() {
     });
 
     if (response.ok) {
-      // Clear selection after booking to avoid stale state
       setSelectedSlot(null);
-      setCurrentDay(null);
     }
   }
 
@@ -235,7 +193,6 @@ export default function Dashboard() {
 
       if (response.ok) {
         setSelectedSlot(null);
-        // Optionally update local state instead of reloading.
         window.location.reload();
       } else {
         console.error("Failed to unbook the timeslot.");
@@ -245,7 +202,6 @@ export default function Dashboard() {
     }
   }
 
-  // =============== AVAILABILITY HANDLER ===============
   const handleAvailabilitySubmit = async () => {
     try {
       const response = await fetch("/api/manageAvailability", {
@@ -272,6 +228,16 @@ export default function Dashboard() {
     }
   };
 
+  const navigateToNextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
+  const navigateToPreviousWeek = () => setCurrentDate(subWeeks(currentDate, 1));
+
+ 
+
+  
+  const handleProfile = async () => {
+    redirect("/profile");
+  }
+
   // =============== JSX ===============
   return (
     <div onClick={() => {if (menuOpen) setMenuOpen(!menuOpen)}} style={styles.container}>
@@ -283,7 +249,7 @@ export default function Dashboard() {
             ⚪⚪</div>
         {menuOpen && (
           <div style={styles.dropdownMenu}>
-           <button style={styles.menuItem} onClick={(e) => handleProfile(e)}>
+           <button style={styles.menuItem} onClick={() => handleProfile()}>
             Your Profile
           </button>
             <button style={styles.menuItem}>Settings</button>

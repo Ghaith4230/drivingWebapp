@@ -35,10 +35,10 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json({ message: "Availability updated!" });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("❌ Error managing availability:", error);
         return NextResponse.json(
-            { error: error?.message || "Failed to update availability" },
+            {error: "Failed to update availability" },
             { status: 500 }
         );
     }

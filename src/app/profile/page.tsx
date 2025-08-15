@@ -1,18 +1,31 @@
 "use client";
 
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./styles";
 import Image from "next/image";
-import { getProfileByUserId } from "@/db/select";
+
 
 
 export default function Profile() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileData, setProfileData] = useState<any>(null);
-  const router = useRouter();
+  const [profileData, setProfileData] = useState<Profile | null>(null);
   const [bookedLessons, setBookedLessons] = useState<TimeSlot[]>([]); 
 
+
+type Profile = {
+  profile: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    address: string;
+    country: string;
+    zipCode: string;
+    gender: string;
+    profileImage: string;
+  };
+};
 
   type TimeSlot = {
     date: string;
@@ -91,6 +104,7 @@ useEffect(() => {
             "Content-Type": "application/json",
           },
         });
+        console.log("Logout response:", response);
         redirect("/login");
    
   };
@@ -114,7 +128,7 @@ useEffect(() => {
       <div style={styles.profileInfo}>
   <div style={styles.profileImageWrapper}>
     <Image 
-      src={profileData?.profileImage || "/default-avatar.svg"} 
+      src={ "/default-avatar.svg"} 
       alt="Profile Logo"
       width={100}
       height={100}

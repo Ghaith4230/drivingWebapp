@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUserByEmail } from '@/db/select';
 import { v4 as uuidv4 } from 'uuid';
-import { hash } from 'bcryptjs';
 import nodemailer from "nodemailer";
 import { updateUser } from '@/db/queries/insert'; 
 

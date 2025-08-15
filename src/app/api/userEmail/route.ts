@@ -1,4 +1,4 @@
-import { getUserByEmail } from '@/db/select'; // wherever your server code lives
+import { getUserByEmail } from '@/db/select';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { deleteSession } from '@/app/lib/session';
 
-export async function POST(req: Request) {
+export async function POST() {
     try {
    
        await deleteSession();

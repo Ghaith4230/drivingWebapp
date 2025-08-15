@@ -1,6 +1,5 @@
 
-const bcrypt = require('bcryptjs');;
-
+import bcrypt from "bcryptjs";
 import {createSession } from "./session"
 import { redirect } from "next/navigation";
 

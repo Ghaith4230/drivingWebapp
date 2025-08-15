@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse} from "next/server";
-import { updateTimeSlot } from '@/db/queries/insert'
 import {and, eq} from "drizzle-orm";
 import {postsTable} from "@/db/schema";
 import {db} from "@/db";
@@ -27,11 +26,10 @@ export async function POST(req: NextRequest) {
         .where(and(eq(postsTable.date, date), eq(postsTable.time, time)));
     console.log("[uncomplete] updateResult:", updateResult);
 
-    const [row] = await db
-        .select({ status: postsTable.status })
-        .from(postsTable)
-        .where(and(eq(postsTable.date, date), eq(postsTable.time, time)))
-        .all();
+ const [row] = await db
+    .select({ status: postsTable.status })
+    .from(postsTable)
+    .where(and(eq(postsTable.date, date), eq(postsTable.time, time)));
     console.log("[uncomplete] row after:", row);
 
     return NextResponse.json({ ok: true, statusNow: row?.status });
